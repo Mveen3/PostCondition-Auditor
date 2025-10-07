@@ -1,0 +1,17 @@
+# Ignore virtual environment
+.venv/
+
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+
+# Ignore environment variables and keys
+.env
+
+# Ignore output files and datasets
+outputs/
+data/
+
+# Ignore system/editor junk
+.DS_Store
+*.log
