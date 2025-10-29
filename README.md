@@ -36,6 +36,5 @@ Planned deliverables include:
 - Visualization of performance metrics  
 
 ## How to Run
-Instructions and usage examples will be added as development progresses.  
-
+Instructions and usage examples will be added as development progresses.
 ---
