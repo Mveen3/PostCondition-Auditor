@@ -2,13 +2,13 @@ import os
 import requests
 from dotenv import load_dotenv
 
-# Load variables from our .env file (now looking for GROQ_API_KEY)
+# Load variables from our .env file
 load_dotenv()
 
 # Get the API key from the environment
 API_KEY = os.environ.get("GROQ_API_KEY")
 
-# 1. UPDATED: Groq's API URL (OpenAI-compatible endpoint)
+# Groq's API URL (OpenAI-compatible endpoint)
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 def get_llm_response(prompt: str) -> str:
@@ -16,7 +16,7 @@ def get_llm_response(prompt: str) -> str:
     Sends a prompt to the Groq API and returns the response.
     """
     if not API_KEY:
-        # UPDATED: Changed the key name in the error message
+        # Changed the key name in the error message
         return "Error: GROQ_API_KEY not found. Please check your .env file."
 
     headers = {
@@ -25,8 +25,7 @@ def get_llm_response(prompt: str) -> str:
     }
 
     data = {
-        # 2. UPDATED: Using a fast, high-quality Groq model
-        "model": "llama-3.3-70b-versatile",
+        "model": "llama-3.3-70b-versatile",  # To change the model, just update this line
         "messages": [
             {"role": "system", "content": "You are a helpful software engineering assistant."},
             {"role": "user", "content": prompt}
@@ -36,7 +35,7 @@ def get_llm_response(prompt: str) -> str:
     try:
         response = requests.post(API_URL, headers=headers, json=data)
 
-        # The JSON path for OpenAI-compatible APIs remains the same
+        # The JSON path for OpenAI-compatible APIs
         if response.status_code == 200:
             result = response.json()
             return result['choices'][0]['message']['content']

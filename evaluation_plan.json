@@ -1,0 +1,902 @@
+[
+  {
+    "task_id": 2,
+    "function_code": "def similar_elements(test_tup1, test_tup2):\n  res = tuple(set(test_tup1) & set(test_tup2))\n  return (res) ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a tuple containing all elements that are common to both input tuples, with no duplicates and in an arbitrary order.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a tuple containing elements that are present in both test_tup1 and test_tup2, with all duplicate elements removed.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a tuple containing all elements that are common to both input tuples, with no duplicates and in arbitrary order, or an empty tuple if the inputs have no elements in common.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 3,
+    "function_code": "import math\ndef is_not_prime(n):\n    result = False\n    for i in range(2,int(math.sqrt(n)) + 1):\n        if n % i == 0:\n            result = True\n    return result",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns True if and only if the input number n is not prime (i.e., n is a positive integer greater than 1 that has at least one divisor other than 1 and itself), and False otherwise, assuming n is a positive integer.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns True if n is an integer that has at least one divisor other than 1 and itself, and False otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "returns True if the input number n is not a prime number and False otherwise, for all integers n >= 2, and may return incorrect results or throw an exception for integers n < 2.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 4,
+    "function_code": "import heapq as hq\ndef heap_queue_largest(nums,n):\n  largest_nums = hq.nlargest(n, nums)\n  return largest_nums",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a list of the n largest elements from the input list 'nums', in descending order.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a list of the n largest elements from the nums list, in descending order.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "len(return_value) == min(n, len(nums)) and all(num in nums for num in return_value) and return_value == sorted(return_value, reverse=True)",
+        "is_testable": true
+      }
+    }
+  },
+  {
+    "task_id": 6,
+    "function_code": "def is_Power_Of_Two (x): \n    return x and (not(x & (x - 1))) \ndef differ_At_One_Bit_Pos(a,b): \n    return is_Power_Of_Two(a ^ b)",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function differ_At_One_Bit_Pos(a, b) returns True if and only if the binary representations of integers a and b differ in exactly one bit position.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function differ_At_One_Bit_Pos returns True if the binary representations of a and b differ at exactly one bit position, and False otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function differ_At_One_Bit_Pos returns True if and only if the binary representations of integers a and b differ in exactly one bit position.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 7,
+    "function_code": "import re\ndef find_char_long(text):\n  return (re.findall(r\"\\b\\w{4,}\\b\", text))",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a list of all words in the input text that are at least 4 characters long.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a list of all words in the text that have a length of 4 characters or more and consist only of word characters.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a list of all words in the input text that have a length of 4 or more characters.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 8,
+    "function_code": "def square_nums(nums):\n square_nums = list(map(lambda x: x ** 2, nums))\n return square_nums",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a list where each element at index i is the square of the element at index i in the input list nums.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a list of integers where each element at index i is the square of the corresponding element at index i in the input list nums.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a list of squared numbers where each element at index i in the output list is the square of the element at index i in the input list.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 9,
+    "function_code": "def find_Rotations(str): \n    tmp = str + str\n    n = len(str) \n    for i in range(1,n + 1): \n        substring = tmp[i: i+n] \n        if (str == substring): \n            return i \n    return n ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the smallest positive integer i such that the input string rotated i positions to the right is equal to the original string, or the length of the string if no such rotation exists.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the smallest number of positions that the input string needs to be rotated to be identical to its original form, or the length of the string if no such rotation is found before a full rotation.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns the minimum number of positions that the input string needs to be rotated to match itself, or the length of the string if it has no rotations that match itself.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 11,
+    "function_code": "def remove_Occ(s,ch): \n    for i in range(len(s)): \n        if (s[i] == ch): \n            s = s[0 : i] + s[i + 1:] \n            break\n    for i in range(len(s) - 1,-1,-1):  \n        if (s[i] == ch): \n            s = s[0 : i] + s[i + 1:] \n            break\n    return s ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a string where at most two occurrences of the character `ch` have been removed from the original string `s`.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a string where the first occurrence of character ch from the start and end of string s have been removed, if they exist, resulting in a string with at most two fewer occurrences of ch than the original string s.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a string where the first and last occurrences of the specified character have been removed from the input string, or the original string if the character occurs less than two times.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 12,
+    "function_code": "def sort_matrix(M):\n    result = sorted(M, key=sum)\n    return result",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a list of rows from the input matrix M, sorted in ascending order by the sum of the elements in each row.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a list of rows from the input matrix M, sorted in ascending order based on the sum of elements in each row.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a list of lists where the input lists are sorted in ascending order based on the sum of their elements.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 14,
+    "function_code": "def find_Volume(l,b,h) : \n    return ((l * b * h) / 2) ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the volume of a right triangular prism with length `l`, breadth `b`, and height `h`, which is half the product of `l`, `b`, and `h`.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a value equal to half the product of the length l, breadth b, and height h.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return_value == (l * b * h) / 2",
+        "is_testable": true
+      }
+    }
+  },
+  {
+    "task_id": 96,
+    "function_code": "def divisor(n):\n  for i in range(n):\n    x = len([i for i in range(1,n+1) if not n % i])\n  return x",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the number of divisors of the input number `n`.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the total number of divisors of n, including 1 and n itself.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return value is equal to the number of divisors of the input number n",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 97,
+    "function_code": "def frequency_lists(list1):\n    list1 = [item for sublist in list1 for item in sublist]\n    dic_data = {}\n    for num in list1:\n        if num in dic_data.keys():\n            dic_data[num] += 1\n        else:\n            key = num\n            value = 1\n            dic_data[key] = value\n    return dic_data\n",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a dictionary where each key is a unique number from the flattened input list and its corresponding value is the frequency of that number in the list.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a dictionary where each key is a unique element from the flattened input list and its corresponding value is the frequency of that element in the flattened list.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a dictionary where each key is a unique number from the input list of lists and its corresponding value is the frequency of that number in the flattened list.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 98,
+    "function_code": "def multiply_num(numbers):  \n    total = 1\n    for x in numbers:\n        total *= x  \n    return total/len(numbers) ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the geometric mean of the input list of numbers.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a value equal to the arithmetic mean of the product of all elements in the numbers list.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns the geometric mean of the input list of numbers.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 99,
+    "function_code": "def decimal_to_binary(n): \n    return bin(n).replace(\"0b\",\"\") ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a string representation of the binary value of the input integer `n`, with no prefix.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a string that represents the binary representation of the decimal number n.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a string representing the binary representation of the input integer n.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 100,
+    "function_code": "import sys\ndef next_smallest_palindrome(num):\n    numstr = str(num)\n    for i in range(num+1,sys.maxsize):\n        if str(i) == str(i)[::-1]:\n            return i",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the smallest integer greater than the input `num` that is a palindrome, or it does not terminate if no such integer exists.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the smallest integer greater than num that is a palindrome, or equivalently, reads the same backward as forward when its digits are concatenated into a string.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns the smallest palindrome number greater than the input number.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 101,
+    "function_code": "def kth_element(arr, k):\n  n = len(arr)\n  for i in range(n):\n    for j in range(0, n-i-1):\n      if arr[j] > arr[j+1]:\n        arr[j], arr[j+1] == arr[j+1], arr[j]\n  return arr[k-1]",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the kth smallest element in the input array, assuming 1-indexed k and the array is sorted in ascending order after the function executes.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the kth smallest element from the array arr, assuming arr is 1-indexed and k is within the bounds of the array, after arranging the elements of arr in ascending order.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns the kth smallest element in the input array, where k is 1-indexed, assuming the input array is not empty and k is within the bounds of the array.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 102,
+    "function_code": "def snake_to_camel(word):\n        import re\n        return ''.join(x.capitalize() or '_' for x in word.split('_'))",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a string where the first letter of each substring separated by underscores in the input string is capitalized, and the rest of the letters are unchanged, with all underscores removed except when the substring is empty, in which case an underscore is returned for that substring.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a string where the first letter of each sub-string separated by underscores in the input word is capitalized, and all underscores are removed, except when a sub-string is empty, in which case an underscore is preserved.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a string where the first letter of each word (except possibly the first word) in the input string separated by '_' is capitalized, with all other characters unchanged, and all '_' characters removed.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 103,
+    "function_code": "def eulerian_num(n, m): \n\tif (m >= n or n == 0): \n\t\treturn 0 \n\tif (m == 0): \n\t\treturn 1 \n\treturn ((n - m) * eulerian_num(n - 1, m - 1) +(m + 1) * eulerian_num(n - 1, m))",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function eulerian_num(n, m) returns the nth Eulerian number of order m, which counts the number of permutations of n elements with exactly m runs of consecutive elements in the same relative order.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the Eulerian number, which represents the number of ways to arrange a set of n objects with m runs, where a run is a sequence of objects in the same relative order.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "the function eulerian_num(n, m) returns the nth Eulerian number of order m, which counts the number of permutations of n elements with exactly m ascents.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 104,
+    "function_code": "def sort_sublists(input_list):\n    result = [sorted(x, key = lambda x:x[0]) for x in input_list] \n    return result\n",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a list of lists where each sublist is a sorted version of the corresponding sublist in the input list, ordered by the first element of each tuple.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a list of lists where each sublist from the input_list is sorted in ascending order based on the first element of each tuple within the sublist.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a list of lists where each sublist contains the same elements as the corresponding sublist in the input list, but sorted in ascending order based on the first element of each inner list element.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 105,
+    "function_code": "def count(lst):   \n    return sum(lst) ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The return value of the function is equal to the sum of all elements in the input list.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a value equal to the arithmetic sum of all elements in lst.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return_value == sum(lst)",
+        "is_testable": true
+      }
+    }
+  },
+  {
+    "task_id": 170,
+    "function_code": "def sum_range_list(list1, m, n):                                                                                                                                                                                                \n    sum_range = 0                                                                                                                                                                                                         \n    for i in range(m, n+1, 1):                                                                                                                                                                                        \n        sum_range += list1[i]                                                                                                                                                                                                  \n    return sum_range   ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the sum of elements in list1 from index m to n (inclusive), assuming m and n are valid indices for list1 and m \u2264 n.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a value equal to the arithmetic sum of the elements in list1 from index m to n (inclusive), assuming m and n are valid indices for list1 and m is less than or equal to n.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return value == sum(list1[m:n+1])",
+        "is_testable": true
+      }
+    }
+  },
+  {
+    "task_id": 171,
+    "function_code": "import math\ndef perimeter_pentagon(a):\n  perimeter=(5*a)\n  return perimeter",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "return value == 5 * a",
+        "is_testable": true
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a value equal to 5 times the input length a.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return_value == 5 * a",
+        "is_testable": true
+      }
+    }
+  },
+  {
+    "task_id": 172,
+    "function_code": "def count_occurance(s):\n  count = 0\n  for i in range(len(s) - 2):\n    if (s[i] == 's' and s[i+1] == 't' and s[i+2] == 'd'):\n      count = count + 1\n  return count",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the number of non-overlapping occurrences of the substring 'std' in the input string `s`.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the number of occurrences of the substring 'std' in the input string s.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns the number of non-overlapping occurrences of the substring 'std' in the input string s.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 222,
+    "function_code": "def check_type(test_tuple):\n  res = True\n  for ele in test_tuple:\n    if not isinstance(ele, type(test_tuple[0])):\n      res = False\n      break\n  return (res) ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns True if and only if all elements in the input tuple are of the same type as the first element, and False otherwise.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns True if all elements in test_tuple are of the same type as the first element of test_tuple, and False otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return value is True if and only if all elements in the input tuple are of the same type as the first element.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 223,
+    "function_code": "def is_majority(arr, n, x):\n\ti = binary_search(arr, 0, n-1, x)\n\tif i == -1:\n\t\treturn False\n\tif ((i + n//2) <= (n -1)) and arr[i + n//2] == x:\n\t\treturn True\n\telse:\n\t\treturn False\ndef binary_search(arr, low, high, x):\n\tif high >= low:\n\t\tmid = (low + high)//2 \n\t\tif (mid == 0 or x > arr[mid-1]) and (arr[mid] == x):\n\t\t\treturn mid\n\t\telif x > arr[mid]:\n\t\t\treturn binary_search(arr, (mid + 1), high, x)\n\t\telse:\n\t\t\treturn binary_search(arr, low, (mid -1), x)\n\treturn -1",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function `is_majority` returns `True` if and only if the element `x` appears more than `n/2` times in the sorted array `arr`, and `False` otherwise.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns True if the element x is present in the array arr and its frequency is more than n/2, and False otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function is_majority returns True if and only if the input element x occurs more than n/2 times in the sorted array arr of length n, and False otherwise.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 224,
+    "function_code": "def count_Set_Bits(n): \n    count = 0\n    while (n): \n        count += n & 1\n        n >>= 1\n    return count ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the number of bits set to 1 in the binary representation of the input number n.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the number of bits in the binary representation of n that are equal to 1.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns the number of bits set to 1 in the binary representation of the input number n.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 226,
+    "function_code": "def odd_values_string(str):\n  result = \"\" \n  for i in range(len(str)):\n    if i % 2 == 0:\n      result = result + str[i]\n  return result",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a string containing characters at even indices from the input string, where indexing starts at 0.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a string consisting of characters from the input string, where the characters are selected from the input string at even indices (0-based indexing).",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a string containing characters from the input string at even indices (0-based indexing).",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 227,
+    "function_code": "def min_of_three(a,b,c): \n      if (a <= b) and (a <= c): \n        smallest = a \n      elif (b <= a) and (b <= c): \n        smallest = b \n      else: \n        smallest = c \n      return smallest ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "return value == min(a, b, c)",
+        "is_testable": true
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a value that is less than or equal to a, b, and c.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return value is the smallest of input parameters a, b, and c",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 228,
+    "function_code": "def all_Bits_Set_In_The_Given_Range(n,l,r):  \n    num = (((1 << r) - 1) ^ ((1 << (l - 1)) - 1)) \n    new_num = n & num\n    if (new_num == 0): \n        return True\n    return False",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns True if and only if all bits in the binary representation of `n` are 0 in the range from `l` to `r` (inclusive), and False otherwise.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns True if all bits in the binary representation of n are 0 in the range from l to r (inclusive), and False otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "the function returns True if all bits in the binary representation of input n are 0 in the range from index l to r (inclusive), and False otherwise.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 229,
+    "function_code": "def re_arrange_array(arr, n):\n  j=0\n  for i in range(0, n):\n    if (arr[i] < 0):\n      temp = arr[i]\n      arr[i] = arr[j]\n      arr[j] = temp\n      j = j + 1\n  return arr",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "All negative elements in the array are to the left of all non-negative elements.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the input array with all negative elements rearranged to appear before all non-negative elements, while maintaining their original order within their respective groups.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "all negative numbers in the array are to the left of all non-negative numbers.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 278,
+    "function_code": "def count_first_elements(test_tup):\n  for count, ele in enumerate(test_tup):\n    if isinstance(ele, tuple):\n      break\n  return (count) ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the index of the first tuple element in the input tuple, or the length of the input tuple if no tuple element is found, assuming the function iterates through the tuple from the start.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the index of the first element in test_tup that is a tuple, or the length of test_tup if no such element exists, where indexing is zero-based and the index is determined by the order of elements in test_tup.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns the index of the first tuple element in the input tuple, or the length of the input tuple if no tuple element is found.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 279,
+    "function_code": "def is_num_decagonal(n): \n\treturn 4 * n * n - 3 * n ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the nth decagonal number.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns an integer value that can be used to determine whether a number n corresponds to a decagonal number, specifically the value is a part of the formula to check if n is a decagonal number.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "is_num_decagonal(n) == 4 * n * n - 3 * n for all integers n >= 0",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 280,
+    "function_code": "def sequential_search(dlist, item):\n    pos = 0\n    found = False\n    while pos < len(dlist) and not found:\n        if dlist[pos] == item:\n            found = True\n        else:\n            pos = pos + 1\n    return found, pos",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a tuple (found, pos) where found is True if and only if item is in the list dlist, and pos is the index of item in dlist if found is True and a value between 0 and len(dlist) if found is False.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a tuple where the first element is True if the item is found in dlist and False otherwise, and the second element is the index of the item in dlist if the item is found and the index of the last checked position otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a tuple where the first element is a boolean indicating whether the item was found in the list and the second element is the index of the item if it was found or the index where the search stopped if it was not found, which is equal to the length of the list.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 281,
+    "function_code": "def all_unique(test_list):\n    if len(test_list) > len(set(test_list)):\n        return False\n    return True",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns True if and only if all elements in test_list are unique.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns True if all elements in test_list are unique, and False otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "returns True if and only if all elements in the input list are unique, and False otherwise",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 282,
+    "function_code": "def sub_list(nums1,nums2):\n  result = map(lambda x, y: x - y, nums1, nums2)\n  return list(result)",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a list where each element at index i is the difference between the elements at index i in the input lists nums1 and nums2, for all valid indices i.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a list where each element at index i is equal to the difference between the elements at index i in nums1 and nums2.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "len(nums1) == len(nums2) ==> len(return_value) == len(nums1) == len(nums2) and all(return_value[i] == nums1[i] - nums2[i] for i in range(len(return_value)))",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 283,
+    "function_code": "def validate(n): \n    for i in range(10): \n        temp = n;  \n        count = 0; \n        while (temp): \n            if (temp % 10 == i): \n                count+=1;  \n            if (count > i): \n                return False\n            temp //= 10; \n    return True",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns True if and only if the input number n does not contain any digit i (0-9) more than i times.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns True if the input number n does not contain more than i occurrences of the digit i for any i in the range 0 to 9, and False otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns True if and only if the input number n does not contain more than i occurrences of the digit i for any i in the range 0 to 9.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 284,
+    "function_code": "def check_element(list,element):\n  check_element=all(v== element for v in list)\n  return check_element",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "return value is True if and only if all elements in the input list are equal to the input element.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns True if all elements in the list are equal to the given element, and False otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return value is True if and only if all elements in the input list are equal to the input element.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 285,
+    "function_code": "import re\ndef text_match_two_three(text):\n        patterns = 'ab{2,3}'\n        if re.search(patterns,  text):\n                return True\n        else:\n                return False",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns True if and only if the input text contains the substring 'abb' or 'abbb'.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns True if the input text contains a substring that matches the regular expression 'ab{2,3}', and False otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns True if and only if the input text contains the substring 'ab' repeated two or three times, and False otherwise.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 286,
+    "function_code": "def max_sub_array_sum_repeated(a, n, k): \n\tmax_so_far = -2147483648\n\tmax_ending_here = 0\n\tfor i in range(n*k): \n\t\tmax_ending_here = max_ending_here + a[i%n] \n\t\tif (max_so_far < max_ending_here): \n\t\t\tmax_so_far = max_ending_here \n\t\tif (max_ending_here < 0): \n\t\t\tmax_ending_here = 0\n\treturn max_so_far",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the maximum sum of a subarray within the array repeated k times.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the maximum possible sum of a subarray when the input array a is repeated k times.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns the maximum sum of a subarray that can be obtained by repeating the input array 'a' up to 'k' times.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 287,
+    "function_code": "def square_Sum(n):  \n    return int(2*n*(n+1)*(2*n+1)/3)",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the sum of the squares of the first n natural numbers, i.e., 1^2 + 2^2 + ... + n^2.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a value equal to the sum of the squares of the first n natural numbers.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return == sum(i**2 for i in range(1, n+1))",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 410,
+    "function_code": "def min_val(listval):\n     min_val = min(i for i in listval if isinstance(i, int))\n     return min_val",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the smallest integer value in the input list, or raises a ValueError if the list contains no integers.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns the smallest integer value present in the listval list.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return value is the smallest integer in listval if listval contains at least one integer, otherwise a ValueError is implicitly raised by the min function.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 411,
+    "function_code": "import re\ndef snake_to_camel(word):\n  return ''.join(x.capitalize() or '_' for x in word.split('_'))",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a string where the first letter of each word (except possibly the first word) in the input string separated by underscores is capitalized, and all underscore characters are removed, except that if the input string starts with an underscore, the output string starts with an underscore.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a string where the first letter of each word (split by underscores in the input word) is capitalized, and all other characters remain unchanged, with any leading or trailing underscores removed and consecutive underscores replaced by a single empty space (effectively removed) in the output string.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a string where the first letter of each word in the input string (split by underscores) is capitalized, with the rest of the characters in each word unchanged, and all underscores are removed, except when a word is empty in which case an underscore is output for that word.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 412,
+    "function_code": "def remove_odd(l):\n    for i in l:\n        if i % 2 != 0:\n            l.remove(i)\n    return l",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "\u2200x \u2208 return value, x % 2 == 0",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a list containing all and only the elements from the original list that are integers divisible by 2.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "\u2200x \u2208 return value, x % 2 == 0 \u2227 x \u2208 input list",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 413,
+    "function_code": "def extract_nth_element(list1, n):\n    result = [x[n] for x in list1]\n    return result",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a list containing the nth element of each sublist in the input list, or raises an IndexError if n is out of range for any sublist.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a list containing the nth element of each sublist in list1, provided that each sublist has at least n+1 elements, and raises an IndexError otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return value is a list containing the nth element of each sublist in the input list, where indexing starts at 0, or raises an IndexError if n is out of range for any sublist.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 414,
+    "function_code": "def overlapping(list1,list2):  \n    for i in range(len(list1)): \n        for j in range(len(list2)): \n            if(list1[i]==list2[j]): \n                return True\n    return False",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns True if and only if there exists an element that is common to both list1 and list2, and False otherwise.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns True if at least one element is common to both list1 and list2, and False otherwise.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns True if and only if there exists at least one common element between list1 and list2, and False otherwise.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 415,
+    "function_code": "def max_Product(arr): \n    arr_len = len(arr) \n    if (arr_len < 2): \n        return (\"No pairs exists\")           \n    x = arr[0]; y = arr[1]      \n    for i in range(0,arr_len): \n        for j in range(i + 1,arr_len): \n            if (arr[i] * arr[j] > x * y): \n                x = arr[i]; y = arr[j] \n    return x,y    ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a pair of elements (x, y) from the input array such that x * y is the maximum product of any pair of elements in the array, or the string \"No pairs exists\" if the array has less than 2 elements.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a pair of elements (x, y) from the input array arr such that their product is greater than or equal to the product of any other pair of elements in arr, or returns \"No pairs exists\" if the array has less than two elements.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a pair of elements from the input array that have the maximum product, or a message indicating that no pairs exist if the input array has less than two elements.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 417,
+    "function_code": "def group_tuples(Input): \n\tout = {} \n\tfor elem in Input: \n\t\ttry: \n\t\t\tout[elem[0]].extend(elem[1:]) \n\t\texcept KeyError: \n\t\t\tout[elem[0]] = list(elem) \n\treturn [tuple(values) for values in out.values()] ",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns a list of tuples where each tuple contains a key from the input tuples and a list of all corresponding values from the input tuples, with the key-value associations preserved and duplicate keys merged into a single tuple.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a list of tuples where each tuple contains the first element of a group of tuples from the Input list that share the same first element, followed by all the remaining elements from the corresponding group of tuples, with the groups determined based on the first element of each tuple in the input.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns a list of tuples where each tuple contains a key from the input tuples along with all values associated with that key in the input, and each key in the input is associated with exactly one tuple in the output.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 418,
+    "function_code": "def Find_Max(lst): \n    maxList = max((x) for x in lst) \n    return maxList",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the maximum value in the input list.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns an element result from the lst list such that result is greater than or equal to all other elements in lst.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "The function returns the maximum element in the input list, or raises a ValueError if the input list is empty.",
+        "is_testable": false
+      }
+    }
+  },
+  {
+    "task_id": 419,
+    "function_code": "def round_and_sum(list1):\n  lenght=len(list1)\n  round_and_sum=sum(list(map(round,list1))* lenght)\n  return round_and_sum",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "The function returns the sum of the rounded elements of the input list multiplied by the length of the input list.",
+        "is_testable": false
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a value equal to the sum of the rounded elements of list1 multiplied by the length of list1.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return_value == sum(round(x) for x in list1) * len(list1)",
+        "is_testable": true
+      }
+    }
+  },
+  {
+    "task_id": 420,
+    "function_code": "def cube_Sum(n): \n    sum = 0\n    for i in range(1,n + 1): \n        sum += (2*i)*(2*i)*(2*i) \n    return sum",
+    "postconditions": {
+      "naive": {
+        "postcondition_string": "return value == sum(8*i**3 for i in range(1, n + 1))",
+        "is_testable": true
+      },
+      "few_shot": {
+        "postcondition_string": "The function returns a value equal to the sum of the cubes of the first n even positive integers, where each integer is doubled before being cubed.",
+        "is_testable": false
+      },
+      "cot": {
+        "postcondition_string": "return value == 16 * sum(i**3 for i in range(1, n + 1))",
+        "is_testable": true
+      }
+    }
+  }
+]
