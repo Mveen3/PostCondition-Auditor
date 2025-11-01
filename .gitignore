@@ -15,3 +15,6 @@ data/
 # Ignore system/editor junk
 .DS_Store
 *.log
+
+# Ignore current status
+ref_mat/current_status.md
