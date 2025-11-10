@@ -1,8 +1,12 @@
+# src/prompt_engine.py
+
+
 import json
 import os
 import time  # We'll add a small delay to be kind to the API
 import inspect  # For introspecting function signatures
 import re  # For cleaning up code strings
+import textwrap  # For dedenting code blocks
 
 # Import the function we already built to call the LLM
 try:
@@ -33,7 +37,7 @@ def get_function_params(function_code: str) -> str:
     """
     try:
         # Clean up code string if it's nested
-        function_code = inspect.cleandoc(function_code)
+        function_code = textwrap.dedent(function_code)
         
         # Define a temporary function to parse
         temp_func_def = {}
@@ -163,6 +167,7 @@ The Python expression must:
 2. Use the function's original parameter names: `{param_names}`.
 3. Evaluate to `True` if the postcondition is met, and `False` otherwise.
 4. Be a single line of valid Python code.
+5. Contain NO natural language or explanations in the final assertion.
 
 Use the following format for your response:
 

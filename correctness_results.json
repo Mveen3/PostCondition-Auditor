@@ -1,0 +1,402 @@
+[
+  {
+    "task_id": 2,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 3,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 4,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 6,
+    "results": {
+      "naive": "fail",
+      "few_shot": "fail",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 7,
+    "results": {
+      "naive": "pass",
+      "few_shot": "fail",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 8,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 9,
+    "results": {
+      "naive": "fail",
+      "few_shot": "fail",
+      "cot": "fail"
+    }
+  },
+  {
+    "task_id": 11,
+    "results": {
+      "naive": "fail",
+      "few_shot": "fail",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 12,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 14,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 96,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 97,
+    "results": {
+      "naive": "fail",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 98,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 99,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 100,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 101,
+    "results": {
+      "naive": "fail",
+      "few_shot": "fail",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 102,
+    "results": {
+      "naive": "fail",
+      "few_shot": "fail",
+      "cot": "fail"
+    }
+  },
+  {
+    "task_id": 103,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 104,
+    "results": {
+      "naive": "fail",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 105,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 170,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 171,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 172,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 222,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 223,
+    "results": {
+      "naive": "fail",
+      "few_shot": "pass",
+      "cot": "fail"
+    }
+  },
+  {
+    "task_id": 224,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 226,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 227,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 228,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 229,
+    "results": {
+      "naive": "untestable_syntax",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 278,
+    "results": {
+      "naive": "fail",
+      "few_shot": "fail",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 279,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 280,
+    "results": {
+      "naive": "fail",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 281,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 282,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 283,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 284,
+    "results": {
+      "naive": "fail",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 285,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 286,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 287,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 410,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "pass",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 411,
+    "results": {
+      "naive": "pass",
+      "few_shot": "fail",
+      "cot": "fail"
+    }
+  },
+  {
+    "task_id": 412,
+    "results": {
+      "naive": "fail",
+      "few_shot": "fail",
+      "cot": "fail"
+    }
+  },
+  {
+    "task_id": 413,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 414,
+    "results": {
+      "naive": "pass",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 415,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 417,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 418,
+    "results": {
+      "naive": "pass",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  },
+  {
+    "task_id": 419,
+    "results": {
+      "naive": "pass",
+      "few_shot": "pass",
+      "cot": "pass"
+    }
+  },
+  {
+    "task_id": 420,
+    "results": {
+      "naive": "error_eval",
+      "few_shot": "error_eval",
+      "cot": "error_eval"
+    }
+  }
+]
