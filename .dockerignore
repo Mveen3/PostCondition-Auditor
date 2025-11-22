@@ -1,0 +1,20 @@
+# Python runtime garbage
+__pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+
+# Secrets
+.env
+.env.local
+
+# Version control
+.git/
+
+# IDE
+.vscode/
+
+# OS junk
+.DS_Store

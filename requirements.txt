@@ -1,0 +1,11 @@
+# requirements.txt
+google-generativeai
+google-genai
+python-dotenv
+requests
+pytest
+hypothesis
+mutmut
+pandas
+seaborn
+matplotlib

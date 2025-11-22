@@ -1,0 +1,252 @@
+{
+  "625": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "103": {
+    "naive": 20,
+    "few_shot": 60,
+    "chain_of_thought": 60
+  },
+  "18": {
+    "naive": 80,
+    "few_shot": 80,
+    "chain_of_thought": 80
+  },
+  "757": {
+    "naive": 60,
+    "few_shot": 60,
+    "chain_of_thought": 60
+  },
+  "267": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "249": {
+    "naive": 40,
+    "few_shot": 40,
+    "chain_of_thought": 40
+  },
+  "235": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "7": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "755": {
+    "naive": 80,
+    "few_shot": 80,
+    "chain_of_thought": 80
+  },
+  "98": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "722": {
+    "naive": 60,
+    "few_shot": 60,
+    "chain_of_thought": 60
+  },
+  "572": {
+    "naive": 80,
+    "few_shot": 80,
+    "chain_of_thought": 80
+  },
+  "90": {
+    "naive": 60,
+    "few_shot": 60,
+    "chain_of_thought": 60
+  },
+  "596": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "428": {
+    "naive": 40,
+    "few_shot": 40,
+    "chain_of_thought": 40
+  },
+  "57": {
+    "naive": 100,
+    "few_shot": 80,
+    "chain_of_thought": 100
+  },
+  "56": {
+    "naive": 80,
+    "few_shot": 80,
+    "chain_of_thought": 80
+  },
+  "93": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "232": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "242": {
+    "naive": 60,
+    "few_shot": 60,
+    "chain_of_thought": 60
+  },
+  "474": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "603": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "19": {
+    "naive": 80,
+    "few_shot": 80,
+    "chain_of_thought": 80
+  },
+  "581": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "171": {
+    "naive": 80,
+    "few_shot": 80,
+    "chain_of_thought": 80
+  },
+  "744": {
+    "naive": 40,
+    "few_shot": 40,
+    "chain_of_thought": 40
+  },
+  "630": {
+    "naive": 80,
+    "few_shot": 80,
+    "chain_of_thought": 80
+  },
+  "737": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "426": {
+    "naive": 80,
+    "few_shot": 80,
+    "chain_of_thought": 80
+  },
+  "233": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "441": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "595": {
+    "naive": 80,
+    "few_shot": 80,
+    "chain_of_thought": 80
+  },
+  "269": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "797": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "6": {
+    "naive": 60,
+    "few_shot": 60,
+    "chain_of_thought": 60
+  },
+  "767": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "794": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "133": {
+    "naive": 60,
+    "few_shot": 60,
+    "chain_of_thought": 60
+  },
+  "735": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "565": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "131": {
+    "naive": 60,
+    "few_shot": 60,
+    "chain_of_thought": 60
+  },
+  "230": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "770": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "305": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "404": {
+    "naive": 60,
+    "few_shot": 60,
+    "chain_of_thought": 60
+  },
+  "95": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "391": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "309": {
+    "naive": 60,
+    "few_shot": 60,
+    "chain_of_thought": 60
+  },
+  "604": {
+    "naive": 100,
+    "few_shot": 100,
+    "chain_of_thought": 100
+  },
+  "261": {
+    "naive": 80,
+    "few_shot": 80,
+    "chain_of_thought": 80
+  }
+}
