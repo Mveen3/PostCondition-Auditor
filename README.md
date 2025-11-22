@@ -272,8 +272,6 @@ Checks if postcondition references any identifier that doesn't exist in:
 | `matplotlib` | Data visualization |
 | `seaborn` | Statistical plots |
 | `pandas` | Data manipulation |
-| `pytest` | Testing framework (optional) |
-| `mutmut` | Mutation testing (reference only) |
 
 ### Python Standard Library
 
@@ -321,7 +319,7 @@ Checks if postcondition references any identifier that doesn't exist in:
 
 ---
 
-## ▶️ Running the Pipeline
+## ⚙️ Running the Pipeline
 
 ```bash
 # Initializing Docker
