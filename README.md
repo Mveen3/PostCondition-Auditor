@@ -9,9 +9,8 @@ A comprehensive automated system for generating and evaluating postconditions fo
 - [Pipeline Components](#pipeline-components)
 - [Technologies & Libraries](#technologies--libraries)
 - [Setup & Installation](#setup--installation)
-- [Usage](#usage)
+- [Running the Pipeline](#-running-the-pipeline)
 - [Output & Results](#output--results)
-- [Docker Deployment](#docker-deployment)
 
 ---
 
@@ -30,29 +29,28 @@ The system uses three different prompting strategies (Naive, Few-Shot, Chain-of-
 ## 📁 Project Structure
 
 ```
-zmyproject/
+Postcondition_Auditor/
 ├── Dockerfile                          # Container configuration
 ├── requirements.txt                    # Python dependencies
-├── .env                               # API keys (not tracked in git)
-├── src/
-│   ├── 01_process_dataset.py         # MBPP dataset sampling & preprocessing
-│   ├── 02_generate_postconditions.py # LLM-based postcondition generation
-│   ├── 03_correctness_evaluation.py  # Test case generation & correctness testing
-│   ├── 04_completeness_evaluation.py # Mutation analysis for completeness
-│   ├── 05_soundness_evaluation.py    # Hallucination detection
-│   ├── 06_summary_n_visualization.py # Metrics computation & visualization
-│   ├── dataset/
-│   │   ├── raw_mbpp.json             # Original MBPP dataset
-│   │   ├── processed_mbpp.json       # 50 sampled functions
-│   │   ├── generated_postconditions.json  # LLM-generated postconditions
-│   │   └── test_cases.json           # Hypothesis-generated test cases
-│   └── evaluation/
-│       ├── correctness_report.json   # Correctness evaluation results
-│       ├── completeness_report.json  # Mutation testing results
-│       ├── soundness_report.json     # Soundness evaluation results
-│       ├── analysis_summary.txt      # Comprehensive text report
-│       └── visualizations/           # Generated charts & plots
-└── Ref_Material/                      # Reference documents
+├── .env                               # API keys
+└── src/
+    ├── 01_process_dataset.py         # MBPP dataset sampling & preprocessing
+    ├── 02_generate_postconditions.py # LLM-based postcondition generation
+    ├── 03_correctness_evaluation.py  # Test case generation & correctness testing
+    ├── 04_completeness_evaluation.py # Mutation analysis for completeness
+    ├── 05_soundness_evaluation.py    # Hallucination detection
+    ├── 06_summary_n_visualization.py # Metrics computation & visualization
+    ├── dataset/
+    │   ├── raw_mbpp.json             # Original MBPP dataset
+    │   ├── processed_mbpp.json       # 50 randomly selected functions from MBPP dataset
+    │   ├── generated_postconditions.json  # LLM-generated postconditions
+    │   └── test_cases.json           # Hypothesis-generated test cases
+    └── evaluation/
+        ├── correctness_report.json   # Correctness evaluation results
+        ├── completeness_report.json  # Mutation testing results
+        ├── soundness_report.json     # Soundness evaluation results
+        ├── analysis_summary.txt      # Comprehensive text report
+        └── visualizations/           # Generated charts & plots
 ```
 
 ---
@@ -266,16 +264,16 @@ Checks if postcondition references any identifier that doesn't exist in:
 
 ### Core Dependencies
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| `google-generativeai` | Latest | Google Gemini LLM API client |
-| `python-dotenv` | Latest | Environment variable management |
-| `hypothesis` | 6.x | Property-based test generation |
-| `matplotlib` | Latest | Data visualization |
-| `seaborn` | Latest | Statistical plots |
-| `pandas` | Latest | Data manipulation |
-| `pytest` | Latest | Testing framework (optional) |
-| `mutmut` | Latest | Mutation testing (reference only) |
+| Library | Purpose |
+|---------|---------|
+| `google-generativeai` | Google Gemini LLM API client |
+| `python-dotenv` | Environment variable management |
+| `hypothesis` | Property-based test generation |
+| `matplotlib` | Data visualization |
+| `seaborn` | Statistical plots |
+| `pandas` | Data manipulation |
+| `pytest` | Testing framework (optional) |
+| `mutmut` | Mutation testing (reference only) |
 
 ### Python Standard Library
 
@@ -296,142 +294,57 @@ Checks if postcondition references any identifier that doesn't exist in:
 
 - Python 3.12+ (recommended)
 - Google Gemini API key
-- Docker (optional, for containerized deployment)
+- Docker (for containerized deployment)
 
 ### Local Installation
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
-   cd zmyproject
+   git clone https://github.com/Mveen3/PostCondition-Auditor
+   cd Postcondition_Auditor
    ```
 
-2. **Create and activate virtual environment**:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Linux/Mac
-   # OR
-   venv\Scripts\activate  # On Windows
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Configure API key**:
+2. **Configure API key**:
    Create a `.env` file in the project root:
    ```bash
    GEMINI_API_KEY=your_google_gemini_api_key_here
    ```
 
-5. **Prepare dataset**:
+3. **Prepare dataset**:
    Place `raw_mbpp.json` in `src/dataset/` directory (or the system will download it automatically if connected).
+
+4. **Building the Docker Image**
+
+    ```bash
+    docker build -t postcondition-auditor .
+    ```
 
 ---
 
-## 📖 Usage
-
-### Complete Pipeline Execution
-
-Run the entire pipeline in sequence:
+## ▶️ Running the Pipeline
 
 ```bash
-# Step 1: Process dataset (sample 50 functions)
-python src/01_process_dataset.py
+# Initializing Docker
+docker run -it -v "$(pwd)":/app postcondition-auditor bash
 
-# Step 2: Generate postconditions using LLM
-python src/02_generate_postconditions.py
+# Random 50 MBPP function generation from raw_mbpp.json
+python3 src/01_process_dataset.py
 
-# Step 3: Evaluate correctness (generates 1000 test cases per function)
-# This step may take 30-60 minutes depending on function complexity
-python src/03_correctness_evaluation.py
+# Postcondition generation (requires API key)
+python3 src/02_generate_postconditions.py
 
-# Step 4: Evaluate completeness (mutation testing)
-python src/04_completeness_evaluation.py
+# Correctness evaluation
+python3 src/03_correctness_evaluation.py
 
-# Step 5: Evaluate soundness (hallucination detection)
-python src/05_soundness_evaluation.py
+# Completeness evaluation
+python3 src/04_completeness_evaluation.py
 
-# Step 6: Generate summary and visualizations
-python src/06_summary_n_visualization.py
+# Soundness evaluation
+python3 src/05_soundness_evaluation.py
+
+# Summary & visualization
+python3 src/06_summary_n_visualization.py
 ```
-
-### Individual Module Execution
-
-Each module can be run independently:
-
-#### Dataset Processing
-```bash
-python src/01_process_dataset.py
-```
-- **Input**: `src/dataset/raw_mbpp.json`
-- **Output**: `src/dataset/processed_mbpp.json`
-- **Duration**: ~5 seconds
-
-#### Postcondition Generation
-```bash
-python src/02_generate_postconditions.py
-```
-- **Input**: `src/dataset/processed_mbpp.json`
-- **Output**: `src/dataset/generated_postconditions.json`
-- **Duration**: ~5-10 minutes (50 functions × 3 strategies)
-- **Note**: Requires valid `GEMINI_API_KEY` in `.env`
-
-#### Correctness Evaluation
-```bash
-python src/03_correctness_evaluation.py
-```
-- **Input**: 
-  - `src/dataset/processed_mbpp.json`
-  - `src/dataset/generated_postconditions.json`
-- **Output**: 
-  - `src/dataset/test_cases.json`
-  - `src/evaluation/correctness_report.json`
-- **Duration**: ~30-60 minutes (generates 1000 test cases per function)
-- **Interactive**: Prompts to reuse existing test cases if found
-
-**User Prompt**:
-```
-✓ Found complete test cases for all 50 functions (1000 each)
-
-Do you want to:
-  1) Use existing test cases [default]
-  2) Regenerate all test cases
-
-Enter choice (1 or 2) [1]: 
-```
-- Press Enter or type `1` to reuse existing test cases (recommended)
-- Type `2` to regenerate from scratch
-
-#### Completeness Evaluation
-```bash
-python src/04_completeness_evaluation.py
-```
-- **Input**: 
-  - `src/dataset/processed_mbpp.json`
-  - `src/dataset/generated_postconditions.json`
-  - `src/dataset/test_cases.json`
-- **Output**: `src/evaluation/completeness_report.json`
-- **Duration**: ~10-20 minutes (5 mutants per function)
-
-#### Soundness Evaluation
-```bash
-python src/05_soundness_evaluation.py
-```
-- **Input**: `src/dataset/generated_postconditions.json`
-- **Output**: `src/evaluation/soundness_report.json`
-- **Duration**: ~1-2 minutes
-
-#### Summary & Visualization
-```bash
-python src/06_summary_n_visualization.py
-```
-- **Input**: All three evaluation reports
-- **Output**: 
-  - `src/evaluation/analysis_summary.txt`
-  - `src/evaluation/visualizations/*.png`
-- **Duration**: ~30 seconds
 
 ---
 
@@ -505,61 +418,6 @@ After running the complete pipeline, you'll have:
 
 ---
 
-## 🐳 Docker Deployment
-
-### Building the Docker Image
-
-```bash
-docker build -t postcondition-auditor .
-```
-
-### Running in Docker
-
-#### Complete Pipeline
-```bash
-docker run --rm \
-  -v $(pwd)/src:/app/src \
-  -e GEMINI_API_KEY=your_api_key_here \
-  postcondition-auditor \
-  bash -c "
-    python src/01_process_dataset.py &&
-    python src/02_generate_postconditions.py &&
-    python src/03_correctness_evaluation.py &&
-    python src/04_completeness_evaluation.py &&
-    python src/05_soundness_evaluation.py &&
-    python src/06_summary_n_visualization.py
-  "
-```
-
-#### Individual Steps
-```bash
-# Dataset processing
-docker run --rm -v $(pwd)/src:/app/src postcondition-auditor python src/01_process_dataset.py
-
-# Postcondition generation (requires API key)
-docker run --rm -v $(pwd)/src:/app/src -e GEMINI_API_KEY=your_key postcondition-auditor python src/02_generate_postconditions.py
-
-# Correctness evaluation (interactive - requires -it flags)
-docker run --rm -it -v $(pwd)/src:/app/src postcondition-auditor python src/03_correctness_evaluation.py
-
-# Completeness evaluation
-docker run --rm -v $(pwd)/src:/app/src postcondition-auditor python src/04_completeness_evaluation.py
-
-# Soundness evaluation
-docker run --rm -v $(pwd)/src:/app/src postcondition-auditor python src/05_soundness_evaluation.py
-
-# Summary & visualization
-docker run --rm -v $(pwd)/src:/app/src postcondition-auditor python src/06_summary_n_visualization.py
-```
-
-### Docker Notes
-
-- **Volume Mounting**: `-v $(pwd)/src:/app/src` ensures generated files persist on host
-- **Environment Variables**: `-e GEMINI_API_KEY=...` passes API key securely
-- **Interactive Mode**: `-it` flags required for steps with user prompts (correctness evaluation)
-- **Automatic Cleanup**: `--rm` flag removes container after execution
-
----
 
 ## 🔍 Key Features
 
@@ -589,7 +447,7 @@ docker run --rm -v $(pwd)/src:/app/src postcondition-auditor python src/06_summa
 ## 📝 Notes & Best Practices
 
 ### Test Case Generation
-- **First Run**: Takes 30-60 minutes to generate 50,000 test cases
+- **First Run**: Takes 5-10 minutes to generate 50,000 test cases
 - **Subsequent Runs**: Prompts to reuse existing test cases (recommended)
 - **Storage**: `test_cases.json` is ~50-100 MB (depends on function complexity)
 
@@ -602,20 +460,6 @@ docker run --rm -v $(pwd)/src:/app/src postcondition-auditor python src/06_summa
 - **Parallel Execution**: Modules are independent after Step 2
 - **Caching**: Reuse test cases, postconditions, and evaluation reports
 - **Resource Usage**: Peak memory during correctness evaluation (~2-4 GB)
-
-### Troubleshooting
-
-**Issue**: `ModuleNotFoundError: No module named 'hypothesis'`
-- **Solution**: Run `pip install -r requirements.txt` in activated virtual environment
-
-**Issue**: API key errors during postcondition generation
-- **Solution**: Verify `.env` file exists with valid `GEMINI_API_KEY`
-
-**Issue**: Timeout errors during test generation
-- **Solution**: Normal for complex recursive functions; system will skip and continue
-
-**Issue**: Mutation generation fails for some functions
-- **Solution**: System applies 7 fallback strategies; minimal impact on overall results
 
 ---
 
@@ -633,31 +477,8 @@ This project implements an automated evaluation framework for assessing the qual
 - Sample Size: 50 functions
 - Test Cases: 1000 per function (Hypothesis-generated)
 - Mutants: 5 per function (AST-based)
-- LLM: Google Gemini 1.5 Flash
+- LLM: Google Gemini 2.5 Flash
+
 
 ---
 
-## 📄 License
-
-This project is for research and educational purposes. Please ensure compliance with Google Gemini API terms of service and MBPP dataset license.
-
----
-
-## 🤝 Contributing
-
-For questions, issues, or contributions, please refer to the project repository or contact the maintainer.
-
----
-
-## 📞 Support
-
-If you encounter any issues running the pipeline:
-1. Verify all dependencies are installed (`pip list`)
-2. Check `.env` file contains valid API key
-3. Ensure `src/dataset/raw_mbpp.json` exists
-4. Review console output for specific error messages
-5. Check `src/evaluation/analysis_summary.txt` for diagnostic information
-
----
-
-**Happy Evaluating! 🚀**
