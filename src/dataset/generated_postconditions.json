@@ -3,9 +3,9 @@
     "task_id": 625,
     "function_code": "def swap_List(newList): \n    size = len(newList) \n    temp = newList[0] \n    newList[0] = newList[size - 1] \n    newList[size - 1] = temp   \n    return newList ",
     "generated_postconditions": {
-      "naive": "assert (len(result) == len(newList) and ((len(newList) <= 1 and result == newList) or (len(newList) >= 2 and result[0] == newList[len(newList)-1] and result[len(result)-1] == newList[0] and all(result[i] == newList[i] for i in range(1, len(newList)-1)))))",
-      "few_shot": "assert (len(newList) == 1 and result == newList) or \\\n       (len(newList) >= 2 and \\\n        len(result) == len(newList) and \\\n        result[0] == newList[len(newList) - 1] and \\\n        result[len(newList) - 1] == newList[0] and \\\n        all(result[i] == newList[i] for i in range(1, len(newList) - 1)))",
-      "chain_of_thought": "assert len(result) == len(newList) and result[0] == newList[len(newList) - 1] and result[len(newList) - 1] == newList[0] and all(result[i] == newList[i] for i in range(1, len(newList) - 1))"
+      "naive": "assert (len(result) == len(newList) and \\\n        result[0] == newList[len(newList)-1] and \\\n        result[len(result)-1] == newList[0] and \\\n        all(result[i] == newList[i] for i in range(1, len(newList) - 1)))",
+      "few_shot": "assert (len(newList) == 1 and result == newList) or (len(newList) >= 2 and len(result) == len(newList) and result[0] == newList[len(newList) - 1] and result[len(newList) - 1] == newList[0] and all(result[i] == newList[i] for i in range(1, len(newList) - 1)))",
+      "chain_of_thought": "assert result is newList and \\\n       len(result) == len(newList) and \\\n       (len(newList) <= 1 or \\\n        (result[0] == newList[len(newList) - 1] and \\\n         result[len(result) - 1] == newList[0] and \\\n         all(result[i] == newList[i] for i in range(1, len(newList) - 1))))"
     }
   },
   {
@@ -13,80 +13,80 @@
     "function_code": "def eulerian_num(n, m): \n\tif (m >= n or n == 0): \n\t\treturn 0 \n\tif (m == 0): \n\t\treturn 1 \n\treturn ((n - m) * eulerian_num(n - 1, m - 1) +(m + 1) * eulerian_num(n - 1, m))",
     "generated_postconditions": {
       "naive": "assert result >= 0 and isinstance(result, int)",
-      "few_shot": "assert ((m >= n or n == 0) and result == 0) or ((m == 0 and n > 0) and result == 1) or ((n > 0 and m > 0 and m < n) and result > 0)",
-      "chain_of_thought": "assert ((n <= 0 or m < 0 or m >= n) and result == 0) or ((n > 0 and 0 <= m < n) and result > 0)"
+      "few_shot": "assert \\\n    ((m >= n or n == 0) and result == 0) \\\n    or \\\n    (m == 0 and result == 1) \\\n    or \\\n    ((m > 0 and m < n and n > 0) and isinstance(result, int) and result > 0)",
+      "chain_of_thought": "assert isinstance(result, int) and result >= 0 and \\\n       ( (m >= n or n == 0) and result == 0 ) or \\\n       ( (n > 0 and m == 0) and result == 1 ) or \\\n       ( (0 < m < n) and result > 0 )"
     }
   },
   {
     "task_id": 18,
     "function_code": "NO_OF_CHARS = 256\ndef str_to_list(string): \n\ttemp = [] \n\tfor x in string: \n\t\ttemp.append(x) \n\treturn temp \ndef lst_to_string(List): \n\treturn ''.join(List) \ndef get_char_count_array(string): \n\tcount = [0] * NO_OF_CHARS \n\tfor i in string: \n\t\tcount[ord(i)] += 1\n\treturn count \ndef remove_dirty_chars(string, second_string): \n\tcount = get_char_count_array(second_string) \n\tip_ind = 0\n\tres_ind = 0\n\ttemp = '' \n\tstr_list = str_to_list(string) \n\twhile ip_ind != len(str_list): \n\t\ttemp = str_list[ip_ind] \n\t\tif count[ord(temp)] == 0: \n\t\t\tstr_list[res_ind] = str_list[ip_ind] \n\t\t\tres_ind += 1\n\t\tip_ind+=1\n\treturn lst_to_string(str_list[0:res_ind]) ",
     "generated_postconditions": {
-      "naive": "assert result == \"\".join([char for char in string if char not in set(second_string)])",
-      "few_shot": "assert result == \"\".join([char for char in string if char not in set(second_string)])",
-      "chain_of_thought": "assert result == ''.join(char for char in string if char not in set(second_string))"
+      "naive": "result == ''.join([c for c in string if c not in second_string])",
+      "few_shot": "assert result == \"\".join(c for c in string if c not in set(second_string))",
+      "chain_of_thought": "assert result == ''.join([c for c in string if c not in second_string])"
     }
   },
   {
     "task_id": 757,
     "function_code": "def count_reverse_pairs(test_list):\n  res = sum([1 for idx in range(0, len(test_list)) for idxn in range(idx, len( \n\ttest_list)) if test_list[idxn] == str(''.join(list(reversed(test_list[idx]))))]) \n  return res",
     "generated_postconditions": {
-      "naive": "assert result == sum(1 for i in range(len(test_list)) for j in range(i, len(test_list)) if test_list[j] == \"\".join(reversed(test_list[i])))",
+      "naive": "assert result == sum(1 for idx in range(len(test_list)) for idxn in range(idx, len(test_list)) if test_list[idxn] == ''.join(reversed(test_list[idx])))",
       "few_shot": "assert result == sum(1 for idx in range(len(test_list)) for idxn in range(idx, len(test_list)) if test_list[idxn] == test_list[idx][::-1])",
-      "chain_of_thought": "assert result == sum(1 for idx in range(len(test_list)) for idxn in range(idx, len(test_list)) if test_list[idxn] == test_list[idx][::-1])"
+      "chain_of_thought": "assert result == sum(1 for i in range(len(test_list)) for j in range(i, len(test_list)) if test_list[j] == test_list[i][::-1])"
     }
   },
   {
     "task_id": 267,
     "function_code": "def square_Sum(n):  \n    return int(n*(4*n*n-1)/3) ",
     "generated_postconditions": {
-      "naive": "assert result == sum((2*i - 1)**2 for i in range(1, n + 1))",
-      "few_shot": "assert result == sum([(2*i + 1)**2 for i in range(n)])",
-      "chain_of_thought": "assert result == sum(((2*i - 1)**2) for i in range(1, n + 1))"
+      "naive": "assert result == sum((2 * k - 1)**2 for k in range(1, n + 1))",
+      "few_shot": "assert result == sum((2 * i + 1)**2 for i in range(n))",
+      "chain_of_thought": "assert result == sum((2*i - 1)**2 for i in range(1, n + 1))"
     }
   },
   {
     "task_id": 249,
     "function_code": "def intersection_array(array_nums1,array_nums2):\n result = list(filter(lambda x: x in array_nums1, array_nums2)) \n return result",
     "generated_postconditions": {
-      "naive": "result == [x for x in array_nums2 if x in array_nums1]",
+      "naive": "assert all((result.count(x) == array_nums2.count(x) if x in array_nums1 else result.count(x) == 0) for x in set(array_nums2))",
       "few_shot": "assert result == [x for x in array_nums2 if x in array_nums1]",
-      "chain_of_thought": "assert result == [x for x in array_nums2 if x in array_nums1]"
+      "chain_of_thought": "assert isinstance(result, list) and \\\n       all(result.count(x) == array_nums2.count(x) for x in set(array_nums2) if x in array_nums1) and \\\n       all(result.count(x) == 0 for x in set(array_nums2) if x not in array_nums1)"
     }
   },
   {
     "task_id": 235,
     "function_code": "def even_bit_set_number(n): \n    count = 0;res = 0;temp = n \n    while(temp > 0): \n        if (count % 2 == 1): \n            res |= (1 << count)\n        count+=1\n        temp >>= 1\n    return (n | res) ",
     "generated_postconditions": {
-      "naive": "assert result == (n | sum(1 << i for i in range(1, n.bit_length(), 2)))",
-      "few_shot": "assert result == (n | sum((1 << i) for i in range(n.bit_length()) if i % 2 == 1))",
-      "chain_of_thought": "assert (result.bit_length() <= n.bit_length()) and \\\n       all(((result >> k) & 1) == 1 for k in range(n.bit_length()) if k % 2 == 1) and \\\n       all(((result >> k) & 1) == ((n >> k) & 1) for k in range(n.bit_length()) if k % 2 == 0)"
+      "naive": "assert all(((result >> k) & 1 == 1 if k % 2 == 0 else (result >> k) & 1 == (n >> k) & 1) for k in range(n.bit_length()))",
+      "few_shot": "assert all(((result >> k) & 1) == (((n >> k) & 1) or (k % 2 == 1 and k < n.bit_length())) for k in range(n.bit_length()))",
+      "chain_of_thought": "assert all((((n >> j) & 1) == 1 or (j % 2 == 1 and j < n.bit_length())) == (((result >> j) & 1) == 1) for j in range(max(n.bit_length(), result.bit_length())))"
     }
   },
   {
-    "task_id": 7,
-    "function_code": "import re\ndef find_char_long(text):\n  return (re.findall(r\"\\b\\w{4,}\\b\", text))",
+    "task_id": 123,
+    "function_code": "def amicable_numbers_sum(limit):\n    if not isinstance(limit, int):\n        return \"Input is not an integer!\"\n    if limit < 1:\n        return \"Input must be bigger than 0!\"\n    amicables = set()\n    for num in range(2, limit+1):\n        if num in amicables:\n            continue\n        sum_fact = sum([fact for fact in range(1, num) if num % fact == 0])\n        sum_fact2 = sum([fact for fact in range(1, sum_fact) if sum_fact % fact == 0])\n        if num == sum_fact2 and num != sum_fact:\n            amicables.add(num)\n            amicables.add(sum_fact2)\n    return sum(amicables)",
     "generated_postconditions": {
-      "naive": "assert isinstance(result, list) and \\\n       all(isinstance(word, str) for word in result) and \\\n       all(len(word) >= 4 for word in result) and \\\n       all(all('a' <= char <= 'z' or 'A' <= char <= 'Z' or '0' <= char <= '9' or char == '_' for char in word) for word in result)",
-      "few_shot": "assert result == [word for word in \"\".join([c if (c.isalnum() or c == '_') else ' ' for c in text]).split() if len(word) >= 4]",
-      "chain_of_thought": "assert isinstance(result, list) and \\\n       all(isinstance(word, str) for word in result) and \\\n       all(len(word) >= 4 for word in result) and \\\n       all(all(c.isalnum() or c == '_' for c in word) for word in result) and \\\n       all(word in text for word in result)"
+      "naive": "assert result == sum(set().union(*[(_num, sum(f for f in range(1, _num) if _num % f == 0)) for _num in range(2, limit + 1) if _num == sum(f_prime for f_prime in range(1, sum(f for f in range(1, _num) if _num % f == 0)) if sum(f for f in range(1, _num) if _num % f == 0) % f_prime == 0) and _num != sum(f for f in range(1, _num) if _num % f == 0)]))",
+      "few_shot": "assert (not isinstance(limit, int) and result == \"Input is not an integer!\") or \\\n       (isinstance(limit, int) and limit < 1 and result == \"Input must be bigger than 0!\") or \\\n       (isinstance(limit, int) and limit >= 1 and \\\n        (lambda _sum_proper_divisors: \\\n            sum(\n                ({num_candidate for num_candidate in range(2, limit + 1)\n                  if num_candidate == _sum_proper_divisors(_sum_proper_divisors(num_candidate)) and \\\n                     num_candidate != _sum_proper_divisors(num_candidate)} |\n                 {_sum_proper_divisors(num_candidate) for num_candidate in range(2, limit + 1)\n                  if num_candidate == _sum_proper_divisors(_sum_proper_divisors(num_candidate)) and \\\n                     num_candidate != _sum_proper_divisors(num_candidate)}\n                )\n            )\n        )(lambda n: sum(f for f in range(1, n) if n % f == 0) if n > 1 else 0) == result \\\n       )",
+      "chain_of_thought": "assert (not isinstance(limit, int) and result == \"Input is not an integer!\") or \\\n       (isinstance(limit, int) and ( \\\n           (limit < 1 and result == \"Input must be bigger than 0!\") or \\\n           (limit >= 1 and isinstance(result, int) and \\\n               result == sum(set(n for n in range(2, limit + 1) if \\\n                                  (sum(d_first for d_first in range(1, n) if n % d_first == 0) != n and \\\n                                   sum(d_second for d_second in range(1, (sum(d_outer for d_outer in range(1, n) if n % d_outer == 0))) if (sum(d_outer for d_outer in range(1, n) if n % d_outer == 0)) % d_second == 0) == n) \\\n                                 ) \\\n                             ) \\\n           ) \\\n       ))"
     }
   },
   {
     "task_id": 755,
     "function_code": "def second_smallest(numbers):\n  unique_numbers = list(set(numbers))\n  unique_numbers.sort()\n  if len(unique_numbers) < 2:\n    return None\n  else:\n    return unique_numbers[1]",
     "generated_postconditions": {
-      "naive": "assert (result is None and len(sorted(list(set(numbers)))) < 2) or \\\n       (len(sorted(list(set(numbers)))) >= 2 and result == sorted(list(set(numbers)))[1])",
-      "few_shot": "assert (result is None and len(set(numbers)) < 2) or (len(set(numbers)) >= 2 and result == sorted(list(set(numbers)))[1])",
-      "chain_of_thought": "assert (len(set(numbers)) < 2 and result is None) or \\\n       (len(set(numbers)) >= 2 and result == sorted(list(set(numbers)))[1])"
+      "naive": "assert (result is None and len(set(numbers)) < 2) or (result is not None and len(set(numbers)) >= 2 and result == sorted(set(numbers))[1])",
+      "few_shot": "assert (result is None and len(set(numbers)) < 2) or (result is not None and result == sorted(list(set(numbers)))[1])",
+      "chain_of_thought": "assert (result is None and len(sorted(list(set(numbers)))) < 2) or \\\n       (result is not None and result == sorted(list(set(numbers)))[1])"
     }
   },
   {
     "task_id": 98,
     "function_code": "def multiply_num(numbers):  \n    total = 1\n    for x in numbers:\n        total *= x  \n    return total/len(numbers) ",
     "generated_postconditions": {
-      "naive": "assert result == (1 if not numbers else __import__('math').prod(numbers)) / len(numbers)",
-      "few_shot": "assert len(numbers) > 0 and result == eval('*'.join(map(str, numbers))) / len(numbers)",
-      "chain_of_thought": "assert len(numbers) > 0 and isinstance(result, float) and ((0 in numbers and result == 0.0) or (0 not in numbers and result != 0.0))"
+      "naive": "assert len(numbers) == 0 or result == (1 if not numbers else __import__('math').prod(numbers)) / len(numbers)",
+      "few_shot": "assert len(numbers) > 0 and result * len(numbers) == (1 if not numbers else __import__('math').prod(numbers))",
+      "chain_of_thought": "assert len(numbers) > 0 and isinstance(result, float) and (not any(x == 0 for x in numbers) or result == 0.0)"
     }
   },
   {
@@ -94,17 +94,17 @@
     "function_code": "def filter_data(students,h,w):\n    result = {k: s for k, s in students.items() if s[0] >=h and s[1] >=w}\n    return result    ",
     "generated_postconditions": {
       "naive": "assert result == {k: s for k, s in students.items() if s[0] >= h and s[1] >= w}",
-      "few_shot": "assert all(k in students and students[k] == v and v[0] >= h and v[1] >= w for k, v in result.items()) and len(result) == sum(1 for k, v in students.items() if v[0] >= h and v[1] >= w)",
-      "chain_of_thought": "assert all((k in result) == (s[0] >= h and s[1] >= w) for k, s in students.items())"
+      "few_shot": "assert result.keys() == {k for k, s in students.items() if s[0] >= h and s[1] >= w} and all(result[k] == students[k] for k in result.keys())",
+      "chain_of_thought": "assert result == {k: s for k, s in students.items() if s[0] >= h and s[1] >= w}"
     }
   },
   {
     "task_id": 572,
     "function_code": "def two_unique_nums(nums):\n  return [i for i in nums if nums.count(i)==1]",
     "generated_postconditions": {
-      "naive": "assert result == [x for x in nums if nums.count(x) == 1]",
-      "few_shot": "assert result == [i for i in nums if nums.count(i) == 1]",
-      "chain_of_thought": "assert result == [i for i in nums if len([x for x in nums if x == i]) == 1]"
+      "naive": "assert result == [i for i in nums if nums.count(i) == 1]",
+      "few_shot": "assert all(nums.count(x) == 1 for x in result) and all(x in result for x in nums if nums.count(x) == 1)",
+      "chain_of_thought": "assert result == [x for x in nums if nums.count(x) == 1]"
     }
   },
   {
@@ -112,44 +112,44 @@
     "function_code": "def len_log(list1):\n    max=len(list1[0])\n    for i in list1:\n        if len(i)>max:\n            max=len(i)\n    return max",
     "generated_postconditions": {
       "naive": "assert result == max(len(word) for word in list1)",
-      "few_shot": "assert len(list1) > 0 and result == max(len(word) for word in list1)",
-      "chain_of_thought": "assert result == max(len(x) for x in list1)"
+      "few_shot": "assert result == max(len(word) for word in list1)",
+      "chain_of_thought": "assert result == max(len(s) for s in list1)"
     }
   },
   {
     "task_id": 596,
     "function_code": "import sys \ndef tuple_size(tuple_list):\n  return (sys.getsizeof(tuple_list)) ",
     "generated_postconditions": {
-      "naive": "assert result == int(result) and result > len(tuple_list)",
-      "few_shot": "assert result == sys.getsizeof(tuple_list)",
-      "chain_of_thought": "assert isinstance(result, int) and result >= 0"
+      "naive": "assert isinstance(result, int) and result > 0",
+      "few_shot": "assert isinstance(result, int) and result > len(tuple_list)",
+      "chain_of_thought": "assert isinstance(result, int) and result > len(tuple_list)"
     }
   },
   {
     "task_id": 428,
     "function_code": "def shell_sort(my_list):\n    gap = len(my_list) // 2\n    while gap > 0:\n        for i in range(gap, len(my_list)):\n            current_item = my_list[i]\n            j = i\n            while j >= gap and my_list[j - gap] > current_item:\n                my_list[j] = my_list[j - gap]\n                j -= gap\n            my_list[j] = current_item\n        gap //= 2\n\n    return my_list",
     "generated_postconditions": {
-      "naive": "assert (len(result) == 0 or all(result[i] <= result[i+1] for i in range(len(result) - 1))) and sorted(my_list) == sorted(result)",
-      "few_shot": "assert result == sorted(my_list)",
-      "chain_of_thought": "assert sorted(my_list) == result"
+      "naive": "assert result == sorted(my_list)",
+      "few_shot": "assert all(result[i] <= result[i+1] for i in range(len(result) - 1)) and sorted(result) == sorted(my_list)",
+      "chain_of_thought": "assert len(result) == len(my_list) and result == sorted(my_list)"
     }
   },
   {
     "task_id": 57,
     "function_code": "def find_Max_Num(arr) : \n    n = len(arr)\n    arr.sort(reverse = True) \n    num = arr[0] \n    for i in range(1,n) : \n        num = num * 10 + arr[i] \n    return num ",
     "generated_postconditions": {
-      "naive": "assert result == int(\"\".join(str(d) for d in arr))",
-      "few_shot": "assert result == sum(digit * (10**(len(sorted(arr, reverse=True)) - 1 - i)) for i, digit in enumerate(sorted(arr, reverse=True))) if arr else 0",
-      "chain_of_thought": "assert str(result) == \"\".join(str(d) for d in sorted(arr, reverse=True))"
+      "naive": "assert result == int(\"\".join([str(d) for d in sorted(arr, reverse=True)]))",
+      "few_shot": "assert result == int(\"\".join(str(d) for d in sorted(arr, reverse=True)))",
+      "chain_of_thought": "assert result == int(''.join(map(str, arr)))"
     }
   },
   {
     "task_id": 56,
     "function_code": "def rev(num):    \n    rev_num = 0\n    while (num > 0):  \n        rev_num = (rev_num * 10 + num % 10) \n        num = num // 10  \n    return rev_num  \ndef check(n):    \n    return (2 * rev(n) == n + 1)  ",
     "generated_postconditions": {
-      "naive": "assert result == (2 * (0 if n < 0 else int(str(n)[::-1])) == n + 1)",
-      "few_shot": "assert result == ((2 * 0 == n + 1) if n <= 0 else (2 * int(str(n)[::-1]) == n + 1))",
-      "chain_of_thought": "assert result == (n + 1 == 2 * (int(str(n)[::-1]) if n >= 0 else 0))"
+      "naive": "assert result == (2 * (0 if n <= 0 else int(str(n)[::-1])) == n + 1)",
+      "few_shot": "assert result == (2 * (0 if n <= 0 else int(str(n)[::-1])) == n + 1)",
+      "chain_of_thought": "assert result == (2 * (0 if n <= 0 else int(str(n)[::-1])) == n + 1)"
     }
   },
   {
@@ -157,7 +157,7 @@
     "function_code": "def power(a,b):\n\tif b==0:\n\t\treturn 1\n\telif a==0:\n\t\treturn 0\n\telif b==1:\n\t\treturn a\n\telse:\n\t\treturn a*power(a,b-1)",
     "generated_postconditions": {
       "naive": "assert result == a ** b",
-      "few_shot": "assert result == a**b",
+      "few_shot": "assert result == a ** b",
       "chain_of_thought": "assert result == a**b"
     }
   },
@@ -165,9 +165,9 @@
     "task_id": 232,
     "function_code": "import heapq\ndef larg_nnum(list1,n):\n largest=heapq.nlargest(n,list1)\n return largest",
     "generated_postconditions": {
-      "naive": "assert (lambda actual_n: len(result) == actual_n and sorted(result) == sorted(list1)[len(list1) - actual_n:])(min(max(0, n), len(list1)))",
+      "naive": "assert len(result) == min(n, len(list1)) and sorted(result) == sorted(sorted(list1, reverse=True)[:min(n, len(list1))])",
       "few_shot": "assert sorted(result) == sorted(sorted(list1, reverse=True)[:min(n, len(list1))])",
-      "chain_of_thought": "assert result == sorted(list1, reverse=True)[:max(0, min(n, len(list1)))]"
+      "chain_of_thought": "assert result == sorted(list1, reverse=True)[:n]"
     }
   },
   {
@@ -183,25 +183,25 @@
     "task_id": 474,
     "function_code": "def replace_char(str1,ch,newch):\n str2 = str1.replace(ch, newch)\n return str2",
     "generated_postconditions": {
-      "naive": "assert (ch == '' and len(result) == len(str1) * (1 + len(newch)) + len(newch)) or \\\n       (ch != '' and \\\n            ( (str1.count(ch) == 0 and result == str1) or \\\n              (ch == newch and result == str1) or \\\n              (str1.count(ch) > 0 and ch != newch and ch not in result) \\\n            ) \\\n       )",
-      "few_shot": "assert result == str1.replace(ch, newch)",
-      "chain_of_thought": "assert ((ch not in str1) == (result == str1)) and all(c in str1 or c in newch for c in result)"
+      "naive": "assert result == str1.replace(ch, newch)",
+      "few_shot": "assert (ch != '' and result == newch.join(str1.split(ch))) or \\\n       (ch == '' and ((len(str1) == 0 and result == newch) or \\\n                      (len(str1) > 0 and result == newch + newch.join(list(str1)) + newch)))",
+      "chain_of_thought": "assert isinstance(result, str) and (len(result) == len(str1) - str1.count(ch) * len(ch) + str1.count(ch) * len(newch))"
     }
   },
   {
     "task_id": 603,
     "function_code": "def get_ludic(n):\n\tludics = []\n\tfor i in range(1, n + 1):\n\t\tludics.append(i)\n\tindex = 1\n\twhile(index != len(ludics)):\n\t\tfirst_ludic = ludics[index]\n\t\tremove_index = index + first_ludic\n\t\twhile(remove_index < len(ludics)):\n\t\t\tludics.remove(ludics[remove_index])\n\t\t\tremove_index = remove_index + first_ludic - 1\n\t\tindex += 1\n\treturn ludics",
     "generated_postconditions": {
-      "naive": "assert (n <= 0 and result == []) or \\\n       (n >= 1 and \\\n        result[0] == 1 and \\\n        all(1 <= x <= n for x in result) and \\\n        all(result[i] < result[i+1] for i in range(len(result) - 1)) and \\\n        (\n            (\n                # Re-simulate the algorithm to generate the expected Ludic list.\n                # This complex expression is necessary to capture the function's\n                # specific step-by-step list mutation logic within a single\n                # boolean expression using only built-ins.\n                # It tracks the 'ludics' list as it evolves by generating\n                # successive states and comparing the final state.\n\n                # This part will build the expected_ludics list, step by step,\n                # which is then compared to `result`.\n\n                # Initialize the list of numbers [1, ..., n]\n                # This uses a list of lists to simulate mutations across steps\n                (lambda initial_ludics: \n                    # Use a reducer-like pattern to apply mutations iteratively.\n                    # This is done by creating a list of state changes,\n                    # where each element represents the list after one sieve step.\n                    # We only care about the final state.\n                    (\n                        lambda states: states[-1] if states else initial_ludics\n                    )(\n                        [\n                            # This loop simulates the `while index != len(ludics)` loop\n                            # Each `state[j]` is the list `ludics` after `j` sieve steps.\n                            # `sieve_idx` is the `index` variable in the original code.\n                            # `current_state` is `ludics` at the beginning of an iteration.\n                            (lambda current_sieve_idx, current_state:\n                                (lambda first_ludic_val:\n                                    # Simulate the inner while loop to find elements to remove.\n                                    # `remove_positions` are indices in `current_state`.\n                                    (lambda remove_positions_raw:\n                                        # Sort and reverse to safely pop elements from `current_state`.\n                                        (lambda sorted_remove_positions:\n                                            # Create a new list after removals.\n                                            [val for idx, val in enumerate(current_state) \n                                             if idx not in sorted_remove_positions]\n                                        )(\n                                            # Generate actual indices to remove, ensuring they are valid.\n                                            sorted([\n                                                pos for pos in remove_positions_raw\n                                                if pos < len(current_state)\n                                            ], reverse=True)\n                                        )\n                                    )(\n                                        # Generate potential removal indices.\n                                        # `remove_idx_start` is `index + first_ludic`.\n                                        # `step` is `first_ludic - 1`.\n                                        # `m` iterates to generate subsequent positions.\n                                        [\n                                            current_sieve_idx + first_ludic_val + m * (first_ludic_val - 1)\n                                            for m in range(max(0, (len(current_state) - (current_sieve_idx + first_ludic_val)) // max(1, first_ludic_val - 1) + 2))\n                                            # The range for `m` needs to be sufficiently large to cover all possible removals,\n                                            # up to the current length of the list + some buffer, as `len` decreases.\n                                            # `max(1, ...)` prevents division by zero if `first_ludic_val - 1` is 0 (i.e., `first_ludic_val` is 1).\n                                        ]\n                                    )\n                                )(current_state[current_sieve_idx]) # first_ludic = ludics[index]\n                            )(j, # current_sieve_idx\n                              states[j-1] if j > 0 else initial_ludics # current_state\n                            )\n                            for j in range(1, len(initial_ludics)) # Iterate through potential sieve indices\n                            # Stop when the sieve index exceeds the current list length.\n                            if j < len(states[j-1] if j > 0 else initial_ludics)\n                        ]\n                    )\n                )(list(range(1, n + 1))) == result\n            )\n        )\n       )",
-      "few_shot": "assert (n < 1 and result == []) or \\\n       (n >= 1 and \\\n        (lambda _n_val: \\\n            (lambda: \\\n                (_sieve_temp := list(range(1, _n_val + 1)), \\\n                 _current_ludic_index := 1, \\\n                 # Outer \"loop\": Iterate through the elements that become Ludic numbers\n                 # Uses a list comprehension for side-effects, iterating for potential ludic numbers\n                 _ = [ \\\n                     (lambda_val: \\\n                         (lambda: \\\n                             (_first_ludic := _sieve_temp[lambda_val], \\\n                              # Inner \"loop\": Remove elements based on _first_ludic value and current list indices\n                              # We need to calculate indices to remove and then pop them in reverse to avoid index shifting issues\n                              _indices_to_remove = sorted([ \\\n                                  idx \\\n                                  for k in range( (len(_sieve_temp) - (lambda_val + _first_ludic)) // _first_ludic + 2 ) \\\n                                  if (idx := lambda_val + k * _first_ludic) < len(_sieve_temp) \\\n                              ], reverse=True), \\\n                              _ = [ _sieve_temp.pop(idx) for idx in _indices_to_remove ] \\\n                         )() \\\n                     )(_current_ludic_index) \\\n                     for _current_ludic_index in range(1, len(_sieve_temp)) \\\n                     # The range upper bound needs to be dynamic, but `range` is fixed.\n                     # This approach iterates up to the initial length, but the inner logic ensures valid indices.\n                     # The actual loop in the function `while(index != len(ludics))` is tricky.\n                     # This version uses a simpler interpretation of removing \"multiples\" by index from the list for each `_first_ludic`.\n                     # The key `_sieve_temp.pop(idx)` means elements are removed.\n                 ], \\\n                 _sieve_temp \\\n                )() \\\n            )() \\\n        )(n) == result \\\n       )",
-      "chain_of_thought": "assert isinstance(result, list) and \\\n       (n &lt; 1 and len(result) == 0 or n &gt;= 1 and \\\n        all(isinstance(x, int) and 1 &lt;= x &lt;= n for x in result) and \\\n        result == sorted(list(set(result))) and \\\n        (n &gt;= 1 and len(result) &gt; 0 and result[0] == 1) and \\\n        result == (lambda n_val: \n            # This lambda encapsulates the exact algorithm to generate the expected result.\n            # It simulates the mutable list operations and loop structure.\n            # This is the closest way to strictly define the result via code within an expression,\n            # acknowledging that the `list.pop()` method and stateful loops are being embedded.\n            # This will fail if n < 1, as the original function does.\n            _ludics = list(range(1, n_val + 1))\n            _index = [1] # Use list to make index mutable within lambda scope\n            while _index[0] != len(_ludics):\n                _first_ludic = _ludics[_index[0]]\n                _remove_index = [_index[0] + _first_ludic] # Use list to make remove_index mutable\n                while _remove_index[0] &lt; len(_ludics):\n                    # In-place modification within a lambda is not idiomatic/safe without this hack or Python 3.8+ walrus.\n                    # This relies on list comprehension for side effects or direct modification for pop.\n                    # For strict \"built-ins\", simulating `pop` within a pure expression is not feasible.\n                    # This segment here is illustrative of *what* needs to be done,\n                    # but cannot be truly expressed with only built-in *functions* as list.pop() is a method.\n                    # Therefore, this part would actually be an external helper function if truly strictly adhering.\n                    # For the purpose of *verification definition*, this is the required logic.\n                    # Given the constraints, a direct executable Python expression for this is near impossible.\n                    # I will provide the conceptual lambda.\n                    return [] # Placeholder, as the actual imperative code cannot be placed here directly.\n        )(n) # If the lambda cannot properly simulate the algorithm, this part would be replaced by `_generate_expected_ludic_list(n)`\n       )"
+      "naive": "assert (n < 1 and result == []) or \\\n       (n >= 1 and result[0] == 1 and \\\n        all(1 <= x <= n for x in result) and \\\n        all(result[i] < result[i+1] for i in range(len(result)-1)))",
+      "few_shot": "assert (n < 1 and result == []) or \\\n       (n >= 1 and \\\n        result[0] == 1 and \\\n        all(1 <= x <= n for x in result) and \\\n        len(result) == len(set(result)) and \\\n        all(result[i] < result[i+1] for i in range(len(result)-1)) and \\\n        # The core Ludic property: `result` contains exactly the numbers from 1 to `n` that survive the Ludic sieve.\n        # This part generates the expected Ludic numbers by simulating the sieve process within the postcondition.\n        # This is a complex expression to capture the stateful list mutations with functional built-ins.\n        # The simulation logic relies on understanding how elements are removed and how indices shift.\n        #\n        # A number `x` is Ludic if it is 1, or it is not eliminated by any smaller Ludic number.\n        # `x` is eliminated by `p` if its rank (1-indexed position) among the numbers\n        # not yet eliminated (starting from the number after `p`) is a multiple of `p`.\n        (lambda initial_numbers:\n            (lambda current_ludics_processed:\n                # `current_ludics_processed` will grow to contain the numbers that are Ludic.\n                # For each `p` in `current_ludics_processed` (which represents a Ludic number found so far):\n                #   Filter out elements from `initial_numbers` based on `p`.\n                # This requires iterating and modifying a list, which is difficult in a single functional expression.\n                #\n                # A more practical approach for a postcondition is to define a \"sieved_list\"\n                # by iteratively applying filters based on previously identified Ludic numbers.\n                #\n                # Let's try to simulate the final `ludics` list explicitly.\n                # This will involve creating a list and filtering it iteratively.\n                # This must be done without explicit loops or mutable state outside of a generator.\n\n                # This is the most complex part to express purely functionally.\n                # We need to compute `expected_ludics` from `initial_numbers` using the sieve.\n                #\n                # Define a helper function (conceptually, in Python it would be a lambda or nested comprehension)\n                # `compute_sieve_step(current_filtered_list, current_ludic_number)`\n                # It removes `current_ludic_number`-th elements from `current_filtered_list`.\n\n                (lambda initial_seq:\n                    (lambda ludic_sieve_values:\n                        [x for x in initial_seq if not any(\n                            # A number 'x' is excluded if it is 'removed' by any `p` in `ludic_sieve_values` (which are `result` elements).\n                            # This 'removal' depends on 'x's position among numbers *not yet removed by smaller ludics*.\n                            # This necessitates simulating the sieve process for each x.\n                            #\n                            # This can be achieved by checking if 'x' is 'struck out' by any 'p' where 'p' is a Ludic number\n                            # that appears before 'x' in the sequence of Ludic numbers.\n                            #\n                            # Let's define the full sieve for `n` here.\n                            # `temp_numbers` acts as the mutable list in the sieve.\n                            (lambda temp_numbers: (\n                                (lambda ludic_num_idx: (\n                                    [\n                                        (lambda _: (\n                                            # Iterate through the elements of `temp_numbers`\n                                            # `ludic_candidate` becomes the next Ludic number.\n                                            # Then remove elements from `temp_numbers` at specific positions.\n                                            ludic_candidate = temp_numbers[ludic_num_idx[0]],\n                                            # Simulate the inner removal loop\n                                            [\n                                                (lambda __: (\n                                                    (lambda current_idx:\n                                                        temp_numbers.pop(current_idx) if current_idx < len(temp_numbers) else None\n                                                    )(ludic_num_idx[0] + ludic_candidate + (k * (ludic_candidate - 1)))\n                                                ))(None) for k in range(len(temp_numbers)) # Dummy range for inner loop\n                                            ],\n                                            ludic_num_idx[0] < len(temp_numbers) and (ludic_num_idx.__setitem__(0, ludic_num_idx[0] + 1)) # Increment index\n                                        ))(None) for _ in range(len(initial_seq)) # Dummy range for outer loop\n                                    ],\n                                    temp_numbers # Return the final sieved list\n                                ))([1]) # mutable index for the sieve\n                            ))(list(initial_seq))) # Pass a mutable copy of initial_seq\n                        ))(list(range(1, n + 1))) == result\n                # This complex attempt to simulate the sieve with mutable lists within lambdas is prone to errors\n                # and might violate implicit constraints of \"single assert\" or readability.\n                # The explicit simulation of `list.pop` or `list.remove` is very difficult to embed.\n\n                # A more practical (though less rigorous for this type of problem) postcondition\n                # for sieve-like algorithms often defines properties of the result rather than\n                # re-computing the full sequence. However, Ludic numbers lack a simple non-sieve definition.\n\n                # Let's try to define this in a way that generates the exact expected output.\n                # This requires a nested construction.\n                # A sequence of `all_numbers` at each step of the sieve.\n                (lambda current_numbers_state:\n                    [\n                        # This generates the expected result iteratively.\n                        # `current_numbers_state` is a list that represents the sequence of numbers\n                        # as it's filtered at each step of the sieve.\n                        # The `filter_step` lambda captures one step of the sieve.\n                        (lambda filter_step:\n                            [\n                                (lambda _, previous_state:\n                                    filter_step(previous_state, previous_state[next_ludic_index])\n                                )(None, current_numbers_state)\n                                for next_ludic_index in range(1, len(current_numbers_state))\n                                # This requires `current_numbers_state` to be the *output* of the previous step.\n                                # This is inherently a `reduce`-like operation, not a simple comprehension.\n                            ]\n                        )(lambda numbers_list, current_ludic:\n                            [num for i, num in enumerate(numbers_list)\n                                if (i < numbers_list.index(current_ludic) + current_ludic or\n                                    (i - (numbers_list.index(current_ludic) + current_ludic)) % current_ludic != 0)\n                            ]\n                            # This is wrong. It needs to account for the list index shifts due to removals.\n                            # It should be based on `ludics.remove(ludics[remove_index])` and `remove_index = remove_index + first_ludic - 1`.\n                        )\n                    ](list(range(1, n + 1))) # Initial numbers for the sieve\n                )() == result # End of the lambda for generating expected_ludics.\n                # This is still incredibly hard to get right in a single assert due to the mutable list `remove` behavior.\n                # A truly robust postcondition for this function implies re-running the exact algorithm within the assertion,\n                # which is not feasible under the given constraints (single assert, no helper functions/globals).\n\n                # Given these difficulties, the postcondition must be a statement of the result's properties\n                # that are *conceptually* related to the sieve, but might not be fully verifiable by a direct re-computation\n                # under the strict constraints.\n\n                # FINAL ATTEMPT based on the most reasonable interpretation of \"built-ins\" for generating a comparison list:\n                (lambda s: \n                    [x for x in range(1, n + 1) if (\n                        x == 1 or not any(\n                            (lambda ludic_list_so_far, current_num_to_check:\n                                (lambda list_before_p_acts:\n                                    (lambda p_val:\n                                        (p_val is not None) and (\n                                            (lambda p_idx_in_prev_list:\n                                                (p_idx_in_prev_list is not None) and (\n                                                    (lambda subsequence_after_p:\n                                                        any(\n                                                            (idx_after_p + 1) % p_val == 0 and subsequence_after_p[idx_after_p] == current_num_to_check\n                                                            for idx_after_p in range(len(subsequence_after_p))\n                                                        )\n                                                    )(list_before_p_acts[p_idx_in_prev_list + 1:])\n                                                )\n                                            )(next((i for i, v in enumerate(list_before_p_acts) if v == p_val), None))\n                                        )\n                                    )(p) # p_val\n                                )(\n                                    # This is `list_before_p_acts`, which is the set of numbers not eliminated by ludics smaller than `p`.\n                                    # This requires recursive filtering, which is very hard.\n                                    # The simplest, though expensive, way is to re-compute the sieve up to `p` for *each* `p`.\n                                    # This is too complex for a single line.\n\n                                    # Let's use `list(range(1,n+1))` and filter it conceptually.\n                                    # A number `y` is in `list_before_p_acts` if it is not eliminated by `ludic_val_before_p`.\n                                    list(filter(\n                                        lambda num_in_seq: not any(\n                                            lp > 1 and lp < p and # previous ludic p_prime\n                                            (lambda prev_sieve_list: # This becomes infinite recursion or requires explicit step-by-step definition\n                                                next((j + 1 for j, v_in_prev_list in enumerate(prev_sieve_list[prev_sieve_list.index(lp) + 1:]) if (j + 1) % lp == 0 and v_in_prev_list == num_in_seq), None)\n                                            )(list(range(1, n + 1))) # Simplified previous sieve list for `lp`\n                                        ),\n                                        list(range(1, n + 1))\n                                    ))\n                                )\n                            )(s, x) for p in result if p > 1 and p < x\n                        )\n                    )]\n                )(set(range(1, n + 1))) == result\n                # This is an extremely complex and likely incorrect attempt at recursive filtering for the sieve.\n                # It's pushing the limits of `all`/`any` and readability.\n                # Given the constraints, a full, precise, and correct postcondition for a Ludic sieve is extremely challenging.\n                #\n                # The provided examples for postconditions were for functions with much simpler mathematical properties.\n                # For Ludic numbers, the definition is inherently iterative and state-modifying.\n\n                # Let's consider the simplest verifiable properties that are true for Ludic numbers.\n                # 1. First element is 1.\n                # 2. All elements are within [1, n].\n                # 3. List is sorted and unique.\n                # Beyond this, for a precise check, one must re-simulate the sieve.\n\n                # The problem demands \"following the same pattern\". The pattern has complex `all`/`any` expressions.\n                # The Ludic number definition requires state. This is the conflict.\n                # I'm going to provide the general properties, and then a simplified conceptual check for the Ludic part,\n                # acknowledging its inherent complexity for single-line expression.\n\n                # Simplest check for \"removed\" is:\n                # `x` is removed by `p` if `x` is in `numbers_removed_by_p_from_sieve_state_for_p`.\n                # This `numbers_removed_by_p_from_sieve_state_for_p` is hard to build.\n\n                # Final structure will be the general list properties, and a direct `result == _expected_ludic_list_by_sieve(n)`\n                # where `_expected_ludic_list_by_sieve(n)` is a conceptually generated list,\n                # the implementation of which requires an iterative/mutable process that is hard to put in one line.\n\n                # I will create a lambda expression that simulates the sieve using Python's list and its `pop` method\n                # which is a built-in. This is the only way to correctly implement the logic within the given constraints.\n\n                (lambda n_val: \n                    # Simulates the get_ludic function.\n                    # This lambda re-implements the entire function as a single expression\n                    # to generate the canonical `expected_ludics` list.\n                    # It uses a list as a mutable object to simulate the index pointer (`_idx`)\n                    # and list.pop for removals.\n                    (lambda ludics_list_mutable: \n                        (lambda _idx: \n                            [\n                                (lambda __:\n                                    (lambda first_ludic:\n                                        (lambda remove_index_mutable:\n                                            [\n                                                (lambda ___:\n                                                    (lambda current_remove_index:\n                                                        (current_remove_index < len(ludics_list_mutable)) and (\n                                                            ludics_list_mutable.pop(current_remove_index)\n                                                        ) and (\n                                                            remove_index_mutable.__setitem__(0, current_remove_index + first_ludic - 1)\n                                                        ) or ( # The `or` allows to break the loop by making the condition false\n                                                            remove_index_mutable.__setitem__(0, len(ludics_list_mutable) + 1)\n                                                        )\n                                                    )(remove_index_mutable[0])\n                                                )(None) for _ in range(len(ludics_list_mutable)) # Iterate for potential removals\n                                            ]\n                                        )([_idx[0] + first_ludic]) # remove_index_mutable\n                                    )(ludics_list_mutable[_idx[0]])\n                                ) ( (_idx.__setitem__(0, _idx[0] + 1)) if _idx[0] < len(ludics_list_mutable) else None )\n                                for _ in range(len(ludics_list_mutable)) # Iterate for index\n                            ],\n                            ludics_list_mutable\n                        )([1]) # _idx (mutable integer)\n                    )(list(range(1, n_val + 1))) # ludics_list_mutable\n                )(n) == result\n        )",
+      "chain_of_thought": "assert result == _expected_ludics"
     }
   },
   {
     "task_id": 19,
     "function_code": "def test_duplicate(arraynums):\n    nums_set = set(arraynums)    \n    return len(arraynums) != len(nums_set)     ",
     "generated_postconditions": {
-      "naive": "assert result == any(arraynums.count(x) > 1 for x in arraynums)",
+      "naive": "assert result == (len(arraynums) != len(set(arraynums)))",
       "few_shot": "assert result == (len(arraynums) != len(set(arraynums)))",
       "chain_of_thought": "assert result == (len(arraynums) != len(set(arraynums)))"
     }
@@ -210,7 +210,7 @@
     "task_id": 581,
     "function_code": "def surface_Area(b,s): \n    return 2 * b * s + pow(b,2) ",
     "generated_postconditions": {
-      "naive": "assert result == 2 * b * s + pow(b, 2)",
+      "naive": "assert result == 2 * b * s + pow(b,2)",
       "few_shot": "assert result == 2 * b * s + b**2",
       "chain_of_thought": "assert result == 2 * b * s + pow(b, 2)"
     }
@@ -219,7 +219,7 @@
     "task_id": 171,
     "function_code": "import math\ndef perimeter_pentagon(a):\n  perimeter=(5*a)\n  return perimeter",
     "generated_postconditions": {
-      "naive": "assert result == (5 * a)",
+      "naive": "assert result == 5 * a",
       "few_shot": "assert result == 5 * a",
       "chain_of_thought": "assert result == 5 * a"
     }
@@ -228,36 +228,36 @@
     "task_id": 744,
     "function_code": "def check_none(test_tup):\n  res = any(map(lambda ele: ele is None, test_tup))\n  return res ",
     "generated_postconditions": {
-      "naive": "assert result == any(ele is None for ele in test_tup)",
+      "naive": "assert result == any(map(lambda ele: ele is None, test_tup))",
       "few_shot": "assert result == any(ele is None for ele in test_tup)",
-      "chain_of_thought": "assert result == any(map(lambda ele: ele is None, test_tup))"
+      "chain_of_thought": "assert result == any(ele is None for ele in test_tup)"
     }
   },
   {
     "task_id": 630,
     "function_code": "def adjac(ele, sub = []): \n  if not ele: \n     yield sub \n  else: \n     yield from [idx for j in range(ele[0] - 1, ele[0] + 2) \n                for idx in adjac(ele[1:], sub + [j])] \ndef get_coordinates(test_tup):\n  return list(adjac(test_tup))",
     "generated_postconditions": {
-      "naive": "assert len(result) == 3 ** len(test_tup) and \\\n       all(isinstance(coord, list) and \\\n           len(coord) == len(test_tup) and \\\n           all(abs(coord[i] - test_tup[i]) <= 1 for i in range(len(test_tup))) \\\n           for coord in result)",
-      "few_shot": "assert len(result) == 3 ** len(test_tup) and \\\n       all(isinstance(coord, list) for coord in result) and \\\n       all(len(coord) == len(test_tup) for coord in result) and \\\n       all(all(abs(coord[i] - test_tup[i]) <= 1 for i in range(len(test_tup))) for coord in result)",
-      "chain_of_thought": "assert (isinstance(result, list) and\n        len(result) == 3 ** len(test_tup) and\n        all(isinstance(coord_list, list) and len(coord_list) == len(test_tup) for coord_list in result) and\n        all(all(abs(coord_list[i] - test_tup[i]) <= 1 for i in range(len(test_tup))) for coord_list in result))"
+      "naive": "assert (len(result) == 3 ** len(test_tup) and\n        all(isinstance(coord, list) for coord in result) and\n        all(len(coord) == len(test_tup) for coord in result) and\n        all(test_tup[i] - 1 <= coord[i] <= test_tup[i] + 1\n            for coord in result\n            for i in range(len(test_tup))))",
+      "few_shot": "assert len(result) == 3**len(test_tup) and \\\n       all(isinstance(coord, list) and \\\n           len(coord) == len(test_tup) and \\\n           all(abs(coord[i] - test_tup[i]) <= 1 \\\n               for i in range(len(test_tup))) \\\n           for coord in result)",
+      "chain_of_thought": "assert isinstance(result, list) and \\\n       len(result) == 3 ** len(test_tup) and \\\n       all(isinstance(coord, list) and \\\n           len(coord) == len(test_tup) and \\\n           all(isinstance(val, int) for val in coord) and \\\n           all(abs(coord[i] - test_tup[i]) <= 1 for i in range(len(test_tup))) \\\n           for coord in result)"
     }
   },
   {
     "task_id": 737,
     "function_code": "import re \nregex = '^[aeiouAEIOU][A-Za-z0-9_]*'\ndef check_str(string): \n\treturn re.search(regex, string)",
     "generated_postconditions": {
-      "naive": "assert (result is not None) == (len(string) > 0 and (string[0] in 'aeiouAEIOU') and all(((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9') or (c == '_')) for c in string[1:]))",
-      "few_shot": "assert bool(result) == (len(string) > 0 and string[0].lower() in {'a', 'e', 'i', 'o', 'u'})",
-      "chain_of_thought": "assert (result is not None) == (len(string) > 0 and string[0].lower() in \"aeiou\")"
+      "naive": "assert bool(result) == (len(string) > 0 and string[0].lower() in {'a', 'e', 'i', 'o', 'u'})",
+      "few_shot": "assert (len(string) > 0 and string[0].lower() in 'aeiou') == (result is not None)",
+      "chain_of_thought": "assert (result is not None) == (len(string) > 0 and string[0].lower() in 'aeiou')"
     }
   },
   {
     "task_id": 426,
     "function_code": "def filter_oddnumbers(nums):\n odd_nums = list(filter(lambda x: x%2 != 0, nums))\n return odd_nums",
     "generated_postconditions": {
-      "naive": "assert result == [x for x in nums if x % 2 != 0]",
-      "few_shot": "assert result == [x for x in nums if x % 2 != 0]",
-      "chain_of_thought": "assert type(result) is list and len(result) == sum(1 for x in nums if x % 2 != 0) and all(a == b for a, b in zip(result, (x for x in nums if x % 2 != 0)))"
+      "naive": "assert all(x % 2 != 0 for x in result) and len(result) == sum(1 for x in nums if x % 2 != 0)",
+      "few_shot": "assert all(x % 2 != 0 for x in result) and len(result) == sum(1 for x in nums if x % 2 != 0) and all(result[i] == ([y for y in nums if y % 2 != 0])[i] for i in range(len(result)))",
+      "chain_of_thought": "assert result == [x for x in nums if x % 2 != 0]"
     }
   },
   {
@@ -282,9 +282,9 @@
     "task_id": 595,
     "function_code": "def min_Swaps(str1,str2) : \n    count = 0\n    for i in range(len(str1)) :  \n        if str1[i] != str2[i] : \n            count += 1\n    if count % 2 == 0 : \n        return (count // 2) \n    else : \n        return (\"Not Possible\") ",
     "generated_postconditions": {
-      "naive": "assert (isinstance(result, int) and sum(1 for i in range(len(str1)) if str1[i] != str2[i]) % 2 == 0 and result == sum(1 for i in range(len(str1)) if str1[i] != str2[i]) // 2) or \\\n       (isinstance(result, str) and result == \"Not Possible\" and sum(1 for i in range(len(str1)) if str1[i] != str2[i]) % 2 != 0)",
-      "few_shot": "assert (sum(1 for i in range(len(str1)) if str1[i] != str2[i]) % 2 == 0 and result == sum(1 for i in range(len(str1)) if str1[i] != str2[i]) // 2) or (sum(1 for i in range(len(str1)) if str1[i] != str2[i]) % 2 != 0 and result == \"Not Possible\")",
-      "chain_of_thought": "assert (sum(1 for i in range(len(str1)) if str1[i] != str2[i]) % 2 == 0 and result == sum(1 for i in range(len(str1)) if str1[i] != str2[i]) // 2) or (sum(1 for i in range(len(str1)) if str1[i] != str2[i]) % 2 != 0 and result == \"Not Possible\")"
+      "naive": "assert (sum(1 for i in range(len(str1)) if str1[i] != str2[i]) % 2 == 0 and result == sum(1 for i in range(len(str1)) if str1[i] != str2[i]) // 2) or (sum(1 for i in range(len(str1)) if str1[i] != str2[i]) % 2 != 0 and result == \"Not Possible\")",
+      "few_shot": "assert ((sum(1 for i in range(len(str1)) if str1[i] != str2[i])) % 2 == 0 and result == (sum(1 for i in range(len(str1)) if str1[i] != str2[i])) // 2) or ((sum(1 for i in range(len(str1)) if str1[i] != str2[i])) % 2 != 0 and result == \"Not Possible\")",
+      "chain_of_thought": "assert result == (sum(1 for i in range(len(str1)) if str1[i] != str2[i]) // 2 if sum(1 for i in range(len(str1)) if str1[i] != str2[i]) % 2 == 0 else \"Not Possible\")"
     }
   },
   {
@@ -293,25 +293,25 @@
     "generated_postconditions": {
       "naive": "assert result == ord(k)",
       "few_shot": "assert result == ord(k)",
-      "chain_of_thought": "assert result == ord(k)"
+      "chain_of_thought": "assert isinstance(result, int) and result == ord(k)"
     }
   },
   {
     "task_id": 797,
     "function_code": "def sum_odd(n): \n    terms = (n + 1)//2\n    sum1 = terms * terms \n    return sum1  \ndef sum_in_range(l,r): \n    return sum_odd(r) - sum_odd(l - 1)",
     "generated_postconditions": {
-      "naive": "assert result == (sum(2 * i - 1 for i in range(1, abs((r + 1) // 2) + 1))) - (sum(2 * i - 1 for i in range(1, abs(l // 2) + 1)))",
-      "few_shot": "assert result == sum(x for x in range(max(1, l), r + 1) if x % 2 != 0)",
-      "chain_of_thought": "assert result == sum(k for k in range(max(1, l), r + 1) if k % 2 != 0)"
+      "naive": "assert result == sum(i for i in range(l, r + 1) if i % 2 != 0 and i >= 1)",
+      "few_shot": "assert result == (((r + 1) // 2) ** 2) - ((l // 2) ** 2)",
+      "chain_of_thought": "assert result == sum(x for x in range(l, r + 1) if x % 2 != 0)"
     }
   },
   {
     "task_id": 6,
     "function_code": "def is_Power_Of_Two (x): \n    return x and (not(x & (x - 1))) \ndef differ_At_One_Bit_Pos(a,b): \n    return is_Power_Of_Two(a ^ b)",
     "generated_postconditions": {
-      "naive": "assert result == ((a ^ b) > 0 and sum(1 for k in range(256) if (a ^ b) == (2**k)) == 1)",
-      "few_shot": "assert result == ((a ^ b) > 0 and ((a ^ b) & ((a ^ b) - 1) == 0))",
-      "chain_of_thought": "assert result == ((a ^ b) > 0 and ((a ^ b) & ((a ^ b) - 1)) == 0)"
+      "naive": "assert result == ((a ^ b) > 0 and ((a ^ b) & ((a ^ b) - 1)) == 0)",
+      "few_shot": "assert result == ((a ^ b) > 0 and ((a ^ b) & ((a ^ b) - 1)) == 0)",
+      "chain_of_thought": "assert result == ((a ^ b > 0) and (bin(a ^ b).count('1') == 1))"
     }
   },
   {
@@ -327,72 +327,72 @@
     "task_id": 794,
     "function_code": "import re\ndef text_starta_endb(text):\n        patterns = 'a.*?b$'\n        return re.search(patterns,  text)",
     "generated_postconditions": {
-      "naive": "assert bool(result) == (len(text) >= 2 and text[-1] == 'b' and text.find('a') != -1 and text.find('a') < len(text) - 1)",
-      "few_shot": "assert \\\n    (result is None and (not (len(text) >= 1 and text[-1] == 'b') or \\\n                         text.rfind('a') == -1 or \\\n                         text.rfind('a') == len(text) - 1)) or \\\n    (result is not None and \\\n     (len(text) >= 1 and text[-1] == 'b') and \\\n     text.rfind('a') != -1 and \\\n     text.rfind('a') < len(text) - 1 and \\\n     result.start() == text.rfind('a') and \\\n     result.end() == len(text) and \\\n     result.group(0) == text[text.rfind('a'):])",
-      "chain_of_thought": "assert (result is None) == (not ('a' in text and text.endswith('b'))) and \\\n       (result is None or (result.span()[0] == text.find('a') and result.span()[1] == len(text)))"
+      "naive": "assert (result is not None) == (text.endswith('b') and ('a' in text) and (text.find('a') < len(text) - 1))",
+      "few_shot": "assert (result is None and (not text.endswith('b') or text.find('a') == -1)) or \\\n       (result is not None and text.endswith('b') and text.find('a') != -1 and \\\n        result.group(0) == text[text.find('a'):])",
+      "chain_of_thought": "assert (result is not None and \\\n              len(text) > 0 and \\\n              text[-1] == 'b' and \\\n              'a' in text and \\\n              result.group(0)[0] == 'a' and \\\n              result.group(0)[-1] == 'b' and \\\n              result.end() == len(text)) or \\\n             (result is None and \\\n              not (len(text) > 0 and text[-1] == 'b' and 'a' in text))"
     }
   },
   {
     "task_id": 133,
     "function_code": "def sum_negativenum(nums):\n  sum_negativenum = list(filter(lambda nums:nums<0,nums))\n  return sum(sum_negativenum)",
     "generated_postconditions": {
-      "naive": "assert result == sum([n for n in nums if n < 0])",
+      "naive": "assert result == sum(n for n in nums if n < 0)",
       "few_shot": "assert result == sum(x for x in nums if x < 0)",
-      "chain_of_thought": "assert result == sum(filter(lambda x: x < 0, nums))"
+      "chain_of_thought": "assert result == sum(x for x in nums if x < 0)"
     }
   },
   {
     "task_id": 735,
     "function_code": "def set_middle_bits(n):  \n    n |= n >> 1; \n    n |= n >> 2; \n    n |= n >> 4; \n    n |= n >> 8; \n    n |= n >> 16;  \n    return (n >> 1) ^ 1\ndef toggle_middle_bits(n): \n    if (n == 1): \n        return 1\n    return n ^ set_middle_bits(n) ",
     "generated_postconditions": {
-      "naive": "assert (n == 1 and result == 1) or \\\n       (n > 1 and \\\n        ((n ^ result) & 1) == 0 and \\\n        (((n ^ result) >> (n.bit_length() - 1)) & 1) == 0 and \\\n        all((((n ^ result) >> i) & 1) == 1 for i in range(1, n.bit_length() - 1)))",
-      "few_shot": "assert ((result & 1) == (n & 1)) and \\\n       (((result >> (n.bit_length() - 1)) & 1) == ((n >> (n.bit_length() - 1)) & 1)) and \\\n       all(((result >> i) & 1) == (1 - ((n >> i) & 1)) for i in range(1, n.bit_length() - 1))",
-      "chain_of_thought": "assert (n == 1 and result == 1) or \\\n       (n > 1 and \\\n        ((n >> 0) & 1) == ((result >> 0) & 1) and \\\n        ((n >> (n.bit_length() - 1)) & 1) == ((result >> (n.bit_length() - 1)) & 1) and \\\n        all(((n >> i) & 1) != ((result >> i) & 1) for i in range(1, n.bit_length() - 1)) and \\\n        result.bit_length() == n.bit_length() \\\n       )"
+      "naive": "assert (result & 1 == n & 1) and \\\n       ((n == 1 and result == n) or \\\n        (n > 1 and \\\n         ((result >> (n.bit_length() - 1)) & 1) == ((n >> (n.bit_length() - 1)) & 1) and \\\n         all((((result >> i) & 1) != ((n >> i) & 1)) for i in range(1, n.bit_length() - 1))))",
+      "few_shot": "assert (n == 1 and result == 1) or \\\n       (n > 1 and \\\n        ((n >> (n.bit_length() - 1)) & 1) == ((result >> (n.bit_length() - 1)) & 1) and \\\n        ((n >> 0) & 1) == ((result >> 0) & 1) and \\\n        all(((n >> i) & 1) != ((result >> i) & 1) for i in range(1, n.bit_length() - 1)) \\\n       )",
+      "chain_of_thought": "assert (result == 1 if n == 1 else result == (n ^ (1 if n <= 1 else sum(1 << i for i in range(1, n.bit_length() - 1)))))"
     }
   },
   {
-    "task_id": 565,
-    "function_code": "def split(word): \n    return [char for char in word] ",
+    "task_id": 307,
+    "function_code": "from copy import deepcopy\ndef colon_tuplex(tuplex,m,n):\n  tuplex_colon = deepcopy(tuplex)\n  tuplex_colon[m].append(n)\n  return tuplex_colon",
     "generated_postconditions": {
-      "naive": "assert result == list(word)",
-      "few_shot": "assert len(result) == len(word) and all(result[i] == word[i] for i in range(len(word)))",
-      "chain_of_thought": "assert result == list(word)"
+      "naive": "assert len(result) == len(tuplex) and all(result[i] == tuplex[i] for i in range(len(tuplex)) if i != m) and result[m] == tuplex[m] + [n]",
+      "few_shot": "assert len(result) == len(tuplex) and all(result[i] == tuplex[i] for i in range(len(tuplex)) if i != m) and result[m] == tuplex[m] + [n]",
+      "chain_of_thought": "assert (result is not tuplex and \\\n        len(result) == len(tuplex) and \\\n        len(result[m]) == len(tuplex[m]) + 1 and \\\n        result[m][-1] == n and \\\n        result[m][:-1] == tuplex[m] and \\\n        all(result[i] == tuplex[i] for i in range(len(tuplex)) if i != m))"
     }
   },
   {
     "task_id": 131,
     "function_code": "def reverse_vowels(str1):\n\tvowels = \"\"\n\tfor char in str1:\n\t\tif char in \"aeiouAEIOU\":\n\t\t\tvowels += char\n\tresult_string = \"\"\n\tfor char in str1:\n\t\tif char in \"aeiouAEIOU\":\n\t\t\tresult_string += vowels[-1]\n\t\t\tvowels = vowels[:-1]\n\t\telse:\n\t\t\tresult_string += char\n\treturn result_string",
     "generated_postconditions": {
-      "naive": "assert (len(result) == len(str1) and all(str1[i] == result[i] for i in range(len(str1)) if str1[i] not in \"aeiouAEIOU\") and [char for char in result if char in \"aeiouAEIOU\"] == [char for char in str1 if char in \"aeiouAEIOU\"][::-1])",
-      "few_shot": "assert len(result) == len(str1) and \\\n       all(result[i] == str1[i] for i in range(len(str1)) if str1[i] not in \"aeiouAEIOU\") and \\\n       [char for char in result if char in \"aeiouAEIOU\"] == \\\n       [char for char in str1 if char in \"aeiouAEIOU\"][::-1]",
-      "chain_of_thought": "assert (len(result) == len(str1) and \\\n        all(result[i] == str1[i] for i in range(len(str1)) if str1[i].lower() not in \"aeiou\") and \\\n        [char for char in result if char.lower() in \"aeiou\"] == [char for char in str1 if char.lower() in \"aeiou\"][::-1])"
+      "naive": "assert (\n    len(result) == len(str1)\n    and all(result[i] == str1[i] for i in range(len(str1)) if str1[i] not in \"aeiouAEIOU\")\n    and (\n        [char for char in result if char in \"aeiouAEIOU\"]\n        == [char for char in str1 if char in \"aeiouAEIOU\"][::-1]\n    )\n)",
+      "few_shot": "assert (\n    len(result) == len(str1) and\n    all(result[i] == str1[i] for i in range(len(str1)) if str1[i] not in \"aeiouAEIOU\") and\n    [char for char in result if char in \"aeiouAEIOU\"] == [char for char in str1 if char in \"aeiouAEIOU\"][::-1]\n)",
+      "chain_of_thought": "assert (len(result) == len(str1) and\n        all(result[i] == str1[i] for i in range(len(str1)) if str1[i] not in \"aeiouAEIOU\") and\n        [char for char in result if char in \"aeiouAEIOU\"] == [char for char in str1 if char in \"aeiouAEIOU\"][::-1])"
     }
   },
   {
     "task_id": 230,
     "function_code": "def replace_blank(str1,char):\n str2 = str1.replace(' ', char)\n return str2",
     "generated_postconditions": {
-      "naive": "assert result == \"\".join([char if c == ' ' else c for c in str1])",
-      "few_shot": "assert len(result) == len(str1) and all((str1[i] == ' ' and result[i] == char) or (str1[i] != ' ' and result[i] == str1[i]) for i in range(len(str1)))",
-      "chain_of_thought": "assert result == char.join(str1.split(' '))"
+      "naive": "assert len(result) == len(str1) and all(result[i] == char if str1[i] == ' ' else result[i] == str1[i] for i in range(len(str1)))",
+      "few_shot": "assert len(result) == len(str1) and all(result[i] == (char if str1[i] == ' ' else str1[i]) for i in range(len(str1)))",
+      "chain_of_thought": "assert (\n    len(result) == len(str1) + sum(1 for c_str1 in str1 if c_str1 == ' ') * (len(char) - 1)\n    and\n    all(\n        (sum(1 for c_res_iter in result if c_res_iter == c_check) ==\n            (sum(1 for c_str1_iter in str1 if c_str1_iter == ' ') if char == ' ' else 0)\n            if c_check == ' ' else\n            (\n                (sum(1 for c_str1_iter in str1 if c_str1_iter == c_check) + sum(1 for c_str1_iter in str1 if c_str1_iter == ' '))\n                if c_check == char and char != ' ' else\n                sum(1 for c_str1_iter in str1 if c_str1_iter == c_check)\n            )\n        )\n        for c_check in list(set(list(str1) + list(char) + [' '])) # Check all relevant unique characters including space\n    )\n)"
     }
   },
   {
     "task_id": 770,
     "function_code": "def odd_num_sum(n) : \n    j = 0\n    sm = 0\n    for i in range(1,n + 1) : \n        j = (2*i-1) \n        sm = sm + (j*j*j*j)   \n    return sm ",
     "generated_postconditions": {
-      "naive": "assert result == sum([(2*i-1)**4 for i in range(1, n + 1)])",
-      "few_shot": "assert result == sum(((2 * i - 1)**4) for i in range(1, n + 1))",
-      "chain_of_thought": "assert result == sum([((2*k-1)**4) for k in range(1, n+1)])"
+      "naive": "assert result == sum(((2*i - 1)**4) for i in range(1, n + 1))",
+      "few_shot": "assert result == sum(((2 * i - 1)**4 for i in range(1, n + 1)))",
+      "chain_of_thought": "assert result == sum(((2*k - 1)**4) for k in range(1, n + 1))"
     }
   },
   {
     "task_id": 305,
     "function_code": "import re\ndef start_withp(words):\n for w in words:\n        m = re.match(\"(P\\w+)\\W(P\\w+)\", w)\n        if m:\n            return m.groups()",
     "generated_postconditions": {
-      "naive": "assert isinstance(result, tuple) and len(result) == 2 and all(isinstance(x, str) and x.startswith('P') and len(x) >= 2 for x in result)",
-      "few_shot": "assert result == next((re.match(\"(P\\w+)\\W(P\\w+)\", w).groups() for w in words if re.match(\"(P\\w+)\\W(P\\w+)\", w)), None)",
-      "chain_of_thought": "assert (result is None and\n        all(\n            (next(\n                ((w[0:i], w[i+1:])\n                 for i in range(1, len(w) - 1)\n                 if (\n                     (isinstance(w[0:i], str) and len(w[0:i]) >= 2 and w[0] == 'P' and all(c.isalnum() or c == '_' for c in w[1:i])) and\n                     (len(w[i]) == 1 and not (w[i].isalnum() or w[i] == '_')) and\n                     (isinstance(w[i+1:], str) and len(w[i+1:]) >= 2 and w[i+1] == 'P' and all(c.isalnum() or c == '_' for c in w[i+2:]))\n                 )\n                ),\n                None\n            )) is None\n            for w in words\n        )\n    ) or (\n        result is not None and\n        isinstance(result, tuple) and\n        len(result) == 2 and\n        (isinstance(result[0], str) and len(result[0]) >= 2 and result[0][0] == 'P' and all(c.isalnum() or c == '_' for c in result[0][1:])) and\n        (isinstance(result[1], str) and len(result[1]) >= 2 and result[1][0] == 'P' and all(c.isalnum() or c == '_' for c in result[1][1:])) and\n        any(\n            result == (next(\n                ((w[0:i], w[i+1:])\n                 for i in range(1, len(w) - 1)\n                 if (\n                     (isinstance(w[0:i], str) and len(w[0:i]) >= 2 and w[0] == 'P' and all(c.isalnum() or c == '_' for c in w[1:i])) and\n                     (len(w[i]) == 1 and not (w[i].isalnum() or w[i] == '_')) and\n                     (isinstance(w[i+1:], str) and len(w[i+1:]) >= 2 and w[i+1] == 'P' and all(c.isalnum() or c == '_' for c in w[i+2:]))\n                 )\n                ),\n                None\n            ))\n            for w in words\n        )\n    )"
+      "naive": "assert isinstance(result, tuple) and len(result) == 2 and all(isinstance(x, str) for x in result) and all(x.startswith('P') for x in result)",
+      "few_shot": "assert result == next((m.groups() for m in (re.match(r\"(P\\w+)\\W(P\\w+)\", w) for w in words) if m is not None), None)",
+      "chain_of_thought": "assert (result is None) or \\\n       (isinstance(result, tuple) and \\\n        len(result) == 2 and \\\n        isinstance(result[0], str) and \\\n        isinstance(result[1], str) and \\\n        result[0].startswith('P') and \\\n        len(result[0]) >= 2 and \\\n        all(c.isalnum() or c == '_' for c in result[0][1:]) and \\\n        result[1].startswith('P') and \\\n        len(result[1]) >= 2 and \\\n        all(c.isalnum() or c == '_' for c in result[1][1:]))"
     }
   },
   {
@@ -400,26 +400,26 @@
     "function_code": "def minimum(a,b):   \n    if a <= b: \n        return a \n    else: \n        return b ",
     "generated_postconditions": {
       "naive": "assert result == min(a, b)",
-      "few_shot": "assert result == min(a, b)",
-      "chain_of_thought": "assert result == min(a, b)"
+      "few_shot": "assert (result == a or result == b) and result <= a and result <= b",
+      "chain_of_thought": "assert (result == a or result == b) and result <= a and result <= b"
     }
   },
   {
     "task_id": 95,
     "function_code": "def Find_Min_Length(lst):  \n    minLength = min(len(x) for x in lst )\n    return minLength ",
     "generated_postconditions": {
-      "naive": "assert result == min(len(x) for x in lst)",
+      "naive": "assert any(result == len(sublist) for sublist in lst) and all(result <= len(sublist) for sublist in lst)",
       "few_shot": "assert result == min(len(x) for x in lst)",
-      "chain_of_thought": "assert result == min(len(x) for x in lst)"
+      "chain_of_thought": "assert all(len(sublist) >= result for sublist in lst) and any(len(sublist) == result for sublist in lst)"
     }
   },
   {
     "task_id": 391,
     "function_code": "def convert_list_dictionary(l1, l2, l3):\n     result = [{x: {y: z}} for (x, y, z) in zip(l1, l2, l3)]\n     return result",
     "generated_postconditions": {
-      "naive": "assert isinstance(result, list) and len(result) == min(len(l1), len(l2), len(l3)) and all(item == {x: {y: z}} for item, x, y, z in zip(result, l1, l2, l3))",
+      "naive": "assert result == [{x: {y: z}} for (x, y, z) in zip(l1, l2, l3)]",
       "few_shot": "assert len(result) == min(len(l1), len(l2), len(l3)) and all(result[i] == {l1[i]: {l2[i]: l3[i]}} for i in range(len(result)))",
-      "chain_of_thought": "assert all(item == {x: {y: z}} for item, (x, y, z) in zip(result, zip(l1, l2, l3)))"
+      "chain_of_thought": "assert (\n    len(result) == min(len(l1), len(l2), len(l3)) and\n    all(\n        isinstance(item, dict) and\n        len(item) == 1 and\n        list(item.keys())[0] == x_val and\n        isinstance(list(item.values())[0], dict) and\n        len(list(item.values())[0]) == 1 and\n        list(list(item.values())[0].keys())[0] == y_val and\n        list(list(item.values())[0].values())[0] == z_val\n        for item, x_val, y_val, z_val in zip(result, l1, l2, l3)\n    )\n)"
     }
   },
   {
@@ -427,26 +427,26 @@
     "function_code": "def maximum(a,b):   \n    if a >= b: \n        return a \n    else: \n        return b ",
     "generated_postconditions": {
       "naive": "assert result == max(a, b)",
-      "few_shot": "assert result == max(a, b)",
-      "chain_of_thought": "assert result >= a and result >= b and (result == a or result == b)"
+      "few_shot": "assert result in (a, b) and result >= a and result >= b",
+      "chain_of_thought": "assert result == max(a, b)"
     }
   },
   {
     "task_id": 604,
     "function_code": "def reverse_words(s):\n        return ' '.join(reversed(s.split()))",
     "generated_postconditions": {
-      "naive": "assert list(reversed(s.split())) == result.split()",
-      "few_shot": "assert len(result.split()) == len(s.split()) and all(result.split()[i] == s.split()[len(s.split()) - 1 - i] for i in range(len(s.split())))",
-      "chain_of_thought": "assert result.split() == list(reversed(s.split()))"
+      "naive": "result.split() == list(reversed(s.split()))",
+      "few_shot": "assert result.split() == s.split()[::-1]",
+      "chain_of_thought": "assert list(result.split()) == list(reversed(s.split()))"
     }
   },
   {
     "task_id": 261,
     "function_code": "def division_elements(test_tup1, test_tup2):\n  res = tuple(ele1 // ele2 for ele1, ele2 in zip(test_tup1, test_tup2))\n  return (res) ",
     "generated_postconditions": {
-      "naive": "assert len(result) == min(len(test_tup1), len(test_tup2)) and all(r_elem == t1_elem // t2_elem for r_elem, t1_elem, t2_elem in zip(result, test_tup1, test_tup2))",
+      "naive": "assert isinstance(result, tuple) and \\\n       len(result) == min(len(test_tup1), len(test_tup2)) and \\\n       all(result[i] == test_tup1[i] // test_tup2[i] for i in range(len(result)))",
       "few_shot": "assert len(result) == min(len(test_tup1), len(test_tup2)) and all(result[i] == test_tup1[i] // test_tup2[i] for i in range(len(result)))",
-      "chain_of_thought": "assert isinstance(result, tuple) and \\\n       len(result) == min(len(test_tup1), len(test_tup2)) and \\\n       all(res_val == t1_val // t2_val for res_val, t1_val, t2_val in zip(result, test_tup1, test_tup2))"
+      "chain_of_thought": "assert isinstance(result, tuple) and \\\n       len(result) == min(len(test_tup1), len(test_tup2)) and \\\n       all(result[i] == test_tup1[i] // test_tup2[i] for i in range(len(result)))"
     }
   }
 ]

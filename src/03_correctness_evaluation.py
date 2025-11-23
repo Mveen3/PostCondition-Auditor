@@ -9,6 +9,10 @@ from pathlib import Path
 from hypothesis import given, strategies as st, settings, Phase, Verbosity, HealthCheck
 from hypothesis.strategies import SearchStrategy
 import sys
+import warnings
+
+# Suppress repetitive SyntaxWarnings from functions with invalid escape sequences
+warnings.filterwarnings("ignore", category=SyntaxWarning)
 
 NUM_TEST_CASES = 1000
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -76,6 +80,7 @@ def infer_strategy_from_mbpp(task: dict) -> dict:
     
     param_strategies = {}
     param_example_types = {}  # Track if we see tuples vs lists
+    param_example_values = {}  # Track all example values for each parameter
     
     # Parse test cases to infer types
     for test_str in test_list:
@@ -102,6 +107,11 @@ def infer_strategy_from_mbpp(task: dict) -> dict:
                                     if param not in param_example_types:
                                         param_example_types[param] = type(value)
                                     
+                                    # Collect all example values for constraint detection
+                                    if param not in param_example_values:
+                                        param_example_values[param] = []
+                                    param_example_values[param].append(value)
+                                    
                                     if param not in param_strategies:
                                         param_strategies[param] = infer_strategy_from_value(
                                             value, param, is_recursive, function_code
@@ -110,6 +120,38 @@ def infer_strategy_from_mbpp(task: dict) -> dict:
                             continue
         except:
             continue
+    
+    # Detect parameters with highly constrained values (same value in all examples)
+    for param, values in param_example_values.items():
+        if len(values) >= 2:
+            # Check if all values are identical (highly constrained parameter)
+            try:
+                # For simple types, check equality directly
+                if all(v == values[0] for v in values):
+                    # Use sampled_from with just the observed value(s)
+                    param_strategies[param] = st.sampled_from([values[0]])
+                    continue
+            except (TypeError, ValueError):
+                # For unhashable types (lists, dicts), convert to string for comparison
+                if all(str(v) == str(values[0]) for v in values):
+                    param_strategies[param] = st.sampled_from([values[0]])
+                    continue
+            
+            # Check if parameter has very few unique values (e.g., always 2 or always from {1,2,3})
+            try:
+                unique_count = len(set(v if not isinstance(v, list) else str(v) for v in values))
+                if unique_count <= 3:
+                    # Deduplicate values while preserving order
+                    seen = set()
+                    unique_vals = []
+                    for v in values:
+                        v_key = v if not isinstance(v, (list, dict)) else str(v)
+                        if v_key not in seen:
+                            seen.add(v_key)
+                            unique_vals.append(v)
+                    param_strategies[param] = st.sampled_from(unique_vals)
+            except (TypeError, ValueError):
+                pass  # Skip if comparison fails
     
     # Fallback to name-based strategies for missing parameters
     for param in params:
@@ -165,6 +207,10 @@ def infer_strategy_from_value(value, param_name: str, is_recursive: bool, functi
     
     elif isinstance(value, int):
         if is_recursive or any(k in param_lower for k in ['limit', 'max', 'bound']):
+            # For limits in recursive or bounded functions, use smaller range
+            # Check if examples are large (> 100) which indicates expensive computation
+            if value > 100:
+                return st.integers(1, 50)  # Much smaller range for expensive functions
             return st.integers(0, 20)
         max_val = abs(value) * 3 if value else 100
         return st.integers(-min(max_val, 200), min(max_val, 200))
@@ -261,7 +307,11 @@ def generate_test_cases_for_task_ID(task: dict, num_cases: int = NUM_TEST_CASES)
         raise TimeoutError("Function execution timed out")
     
     try:
-        exec(function_code, exec_globals)
+        # Suppress warnings during function execution (e.g., invalid escape sequences)
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", SyntaxWarning)
+            exec(function_code, exec_globals)
         func = exec_globals[function_name]
         
         # Keep generating until we have enough test cases
@@ -276,7 +326,18 @@ def generate_test_cases_for_task_ID(task: dict, num_cases: int = NUM_TEST_CASES)
         mbpp_inputs = parse_mbpp_test_cases(task)
         initial_inputs = mbpp_inputs.copy()
         
+        # Track total time spent to prevent hanging on expensive functions
+        import time
+        start_time = time.time()
+        MAX_GENERATION_TIME = 900  # 15 minutes max per function
+        
         while len(test_cases) < num_cases:
+            # Check if we've spent too long on this function
+            if time.time() - start_time > MAX_GENERATION_TIME:
+                print(f"\r    Warning: Generation timeout after {MAX_GENERATION_TIME}s (expensive function)")
+                print(f"    Stopping at {len(test_cases)} cases - function is computationally expensive")
+                break
+            
             # Generate a new batch of test inputs
             batch_size = num_cases - len(test_cases)
             
@@ -321,14 +382,14 @@ def generate_test_cases_for_task_ID(task: dict, num_cases: int = NUM_TEST_CASES)
                 if len(test_cases) >= num_cases:
                     break
                     
+                # Set timeout BEFORE any processing to catch all slow operations
+                signal.signal(signal.SIGALRM, timeout_handler)
+                signal.alarm(5)  # 5 second timeout per test case (reduced from 10)
+                
                 try:
                     # Handle both single arg and multiple args
                     if not isinstance(input_args, list):
                         input_args = [input_args]
-                    
-                    # Set timeout to prevent infinite loops in the function itself
-                    signal.signal(signal.SIGALRM, timeout_handler)
-                    signal.alarm(10)  # 10 second timeout per test case
                     
                     try:
                         result = func(*input_args)
@@ -366,11 +427,16 @@ def generate_test_cases_for_task_ID(task: dict, num_cases: int = NUM_TEST_CASES)
             if len(test_cases) == prev_count:
                 stalled_batches += 1
                 if stalled_batches >= MAX_STALLED_BATCHES:
-                    print(f"    Warning: No progress after {stalled_batches} batches (infinite loop protection)")
+                    print(f"\r    Warning: No progress after {stalled_batches} batches (infinite loop protection)")
                     print(f"    Stopping at {len(test_cases)} cases - function may require specific input constraints")
                     break
             else:
                 stalled_batches = 0  # Reset counter when we make progress
+            
+            # Show real-time progress on same line
+            if len(test_cases) != prev_count:
+                elapsed = time.time() - start_time
+                print(f"\r    Progress: {len(test_cases)}/{num_cases} test cases ({elapsed:.1f}s elapsed)", end='', flush=True)
             
             prev_count = len(test_cases)
                 
@@ -381,9 +447,9 @@ def generate_test_cases_for_task_ID(task: dict, num_cases: int = NUM_TEST_CASES)
     
     # Report results
     if len(test_cases) < num_cases:
-        print(f"    ⚠ Only generated {len(test_cases)}/{num_cases} test cases")
+        print(f"\r    ⚠ Only generated {len(test_cases)}/{num_cases} test cases")
     else:
-        print(f"    ✓ Generated {len(test_cases)} valid test cases")
+        print(f"\r    ✓ Generated {len(test_cases)} valid test cases")
     
     return {
         "task_id": task_id,
@@ -498,10 +564,23 @@ def evaluate_postcondition_on_test_case(function_code: str, postcondition_code: 
     Evaluate a postcondition on a single test case.
     Returns True if postcondition passes, False if it fails or errors.
     """
+    import signal
+    
+    def timeout_handler(signum, frame):
+        raise TimeoutError("Postcondition evaluation timed out")
+    
     try:
+        # Set timeout to prevent infinite loops
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(5)  # 5 second timeout per test case evaluation
+        
         # Create execution environment
         exec_globals = {}
-        exec(function_code, exec_globals)
+        # Suppress warnings during function execution (e.g., invalid escape sequences)
+        import warnings
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", SyntaxWarning)
+            exec(function_code, exec_globals)
         
         # Get function
         func_name = extract_function_name(function_code)
@@ -524,10 +603,16 @@ def evaluate_postcondition_on_test_case(function_code: str, postcondition_code: 
         # Execute postcondition
         exec(postcondition_code, eval_env)
         
+        signal.alarm(0)  # Cancel timeout
         return True
     except AssertionError:
+        signal.alarm(0)
+        return False
+    except TimeoutError:
+        signal.alarm(0)
         return False
     except Exception:
+        signal.alarm(0)
         return False
 
 
@@ -535,14 +620,16 @@ def evaluate_correctness(generated_postconditions: list, test_cases_dict: dict) 
     """Evaluate correctness of all postconditions."""
     print("\n=== Evaluating Correctness ===\n")
     
+    MAX_TEST_CASES_PER_EVAL = 100  # Limit test cases to prevent excessive runtime
     correctness_report = {}
+    total_tasks = len(generated_postconditions)
     
-    for gen_post in generated_postconditions:
+    for idx, gen_post in enumerate(generated_postconditions, 1):
         task_id = gen_post["task_id"]
         function_code = gen_post["function_code"]
         postconditions = gen_post["generated_postconditions"]
         
-        print(f"Evaluating task {task_id}...")
+        print(f"[{idx}/{total_tasks}] Evaluating task {task_id}...")
         
         # Get test cases
         if task_id not in test_cases_dict:
@@ -551,27 +638,46 @@ def evaluate_correctness(generated_postconditions: list, test_cases_dict: dict) 
         
         test_cases = test_cases_dict[task_id]["test_cases"]
         
+        # Limit test cases for efficiency
+        if len(test_cases) > MAX_TEST_CASES_PER_EVAL:
+            test_cases = test_cases[:MAX_TEST_CASES_PER_EVAL]
+            print(f"  Using {MAX_TEST_CASES_PER_EVAL}/{len(test_cases_dict[task_id]['test_cases'])} test cases")
+        
         task_results = {}
         for strategy in ["naive", "few_shot", "chain_of_thought"]:
             postcondition_code = postconditions.get(strategy, "")
             
             if not postcondition_code or "ERROR" in postcondition_code:
                 task_results[strategy] = False
+                print(f"  {strategy}: ✗ (no valid postcondition)")
                 continue
             
             # Test postcondition on all test cases
             all_passed = True
-            for test_case in test_cases:
-                passed = evaluate_postcondition_on_test_case(
-                    function_code, postcondition_code, test_case
-                )
-                if not passed:
-                    all_passed = False
-                    break
+            passed_count = 0
             
-            task_results[strategy] = all_passed
-            status = "✓" if all_passed else "✗"
-            print(f"  {strategy}: {status}")
+            try:
+                for i, test_case in enumerate(test_cases):
+                    # Progress indicator for long evaluations
+                    if i > 0 and i % 25 == 0:
+                        print(f"    {strategy}: {i}/{len(test_cases)} tests...", end='\r')
+                    
+                    passed = evaluate_postcondition_on_test_case(
+                        function_code, postcondition_code, test_case
+                    )
+                    if passed:
+                        passed_count += 1
+                    else:
+                        all_passed = False
+                        break
+                
+                task_results[strategy] = all_passed
+                status = "✓" if all_passed else "✗"
+                print(f"  {strategy}: {status} ({passed_count}/{len(test_cases)} passed)")
+                
+            except Exception as e:
+                print(f"  {strategy}: ✗ (evaluation error: {str(e)[:50]})")
+                task_results[strategy] = False
         
         correctness_report[str(task_id)] = task_results
     

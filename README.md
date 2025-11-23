@@ -47,7 +47,7 @@ Postcondition_Auditor/
     │   └── test_cases.json           # Hypothesis-generated test cases
     └── reports/
         ├── correctness_report.json   # Correctness evaluation results
-        ├── completeness_report_mutmut.json  # Mutmut-style mutation testing results
+        ├── completeness_report.json  # Mutmut-style mutation testing results
         ├── soundness_report.json     # Soundness evaluation results
         ├── analysis_summary.txt      # Comprehensive text report
         └── visualizations/           # Generated charts & plots
@@ -333,7 +333,8 @@ Checks if postcondition references any identifier that doesn't exist in:
 2. **Configure API key**:
    Create a `.env` file in the project root:
    ```bash
-   GEMINI_API_KEY=your_google_gemini_api_key_here
+   # Paste your Gemini API key in the following format
+   GEMINI_API_KEY= AIzaSyA0cYaeXXXXXXXXXXXXXXXXXXXXXXXXXXX
    ```
 
 3. **Prepare dataset**:
@@ -351,7 +352,7 @@ Checks if postcondition references any identifier that doesn't exist in:
 
 ```bash
 # Initializing Docker
-docker run -it -v "$(pwd)":/app postcondition-auditor bash
+docker run -it -v "$(pwd)":/app postcondition-auditor
 
 # Random 50 MBPP function generation from raw_mbpp.json
 python3 src/01_process_dataset.py
@@ -476,7 +477,7 @@ After running the complete pipeline, you'll have:
 ## 📝 Notes & Best Practices
 
 ### Test Case Generation
-- **First Run**: Takes 5-10 minutes to generate 50,000 test cases
+- **First Run**: Takes 15-30 minutes to generate 50,000 test cases
 - **Subsequent Runs**: Prompts to reuse existing test cases (recommended)
 - **Storage**: `test_cases.json` is ~50-100 MB (depends on function complexity)
 

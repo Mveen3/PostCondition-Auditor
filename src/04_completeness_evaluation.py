@@ -8,6 +8,10 @@ import ast
 import copy
 import signal
 from pathlib import Path
+import warnings
+
+# Suppress repetitive SyntaxWarnings from functions with invalid escape sequences
+warnings.filterwarnings("ignore", category=SyntaxWarning)
 
 NUM_MUTANTS = 5
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -194,8 +198,10 @@ def are_mutants_equivalent(original_code: str, mutant_code: str, test_cases: lis
     try:
         signal.alarm(2)
         exec_orig, exec_mut = {}, {}
-        exec(original_code, exec_orig)
-        exec(mutant_code, exec_mut)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", SyntaxWarning)
+            exec(original_code, exec_orig)
+            exec(mutant_code, exec_mut)
         
         func_name = extract_function_name(original_code)
         orig_func, mut_func = exec_orig[func_name], exec_mut[func_name]
@@ -326,7 +332,9 @@ def evaluate_postcondition_on_mutant(mutant_code: str, postcondition_code: str,
         try:
             signal.alarm(1)
             exec_globals = {}
-            exec(mutant_code, exec_globals)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", SyntaxWarning)
+                exec(mutant_code, exec_globals)
             
             result = exec_globals[extract_function_name(mutant_code)](*test_case["args"], **test_case.get("kwargs", {}))
             

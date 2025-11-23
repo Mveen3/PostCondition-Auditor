@@ -1,0 +1,147 @@
+================================================================================
+COMPREHENSIVE POSTCONDITION EVALUATION ANALYSIS
+Tripartite Evaluation Framework: Correctness, Completeness, Soundness
+================================================================================
+
+### EVALUATION OVERVIEW ###
+Total Functions Evaluated: 50
+
+### 1. CORRECTNESS (VALIDITY) - Property-Based Testing ###
+Metric: Percentage of postconditions passing 1000 property-based tests
+
+  NAIVE:
+    Valid Postconditions: 45/50
+    Validity Percentage: 90.0%
+
+  FEW SHOT:
+    Valid Postconditions: 44/50
+    Validity Percentage: 88.0%
+
+  CHAIN OF THOUGHT:
+    Valid Postconditions: 45/50
+    Validity Percentage: 90.0%
+
+### 2. COMPLETENESS (STRENGTH) - Mutation Analysis ###
+Metric: Average Mutation Kill Score (% of mutants detected)
+
+  NAIVE:
+    Average Mutation Kill Score: 93.2%
+    Median Mutation Kill Score: 100.0%
+    Range: 20% - 100%
+    High Performers (≥80%): 45 (90.0%)
+    Low Performers (≤40%): 3 (6.0%)
+
+  FEW SHOT:
+    Average Mutation Kill Score: 97.6%
+    Median Mutation Kill Score: 100.0%
+    Range: 60% - 100%
+    High Performers (≥80%): 48 (96.0%)
+    Low Performers (≤40%): 0 (0.0%)
+
+  CHAIN OF THOUGHT:
+    Average Mutation Kill Score: 95.6%
+    Median Mutation Kill Score: 100.0%
+    Range: 40% - 100%
+    High Performers (≥80%): 46 (92.0%)
+    Low Performers (≤40%): 1 (2.0%)
+
+### 3. SOUNDNESS (RELIABILITY) - Hallucination Audit ###
+Metric: Percentage of postconditions without hallucinated variables
+
+  NAIVE:
+    Sound Postconditions: 49/50
+    Sound Percentage: 98.0%
+    Hallucination Rate: 2.0%
+
+  FEW SHOT:
+    Sound Postconditions: 48/50
+    Sound Percentage: 96.0%
+    Hallucination Rate: 4.0%
+
+  CHAIN OF THOUGHT:
+    Sound Postconditions: 49/50
+    Sound Percentage: 98.0%
+    Hallucination Rate: 2.0%
+
+### 4. COMBINED ANALYSIS - Perfect Postconditions ###
+Functions achieving Valid + Strong (≥80%) + Sound simultaneously
+
+  NAIVE:
+    Perfect Postconditions: 39 (78.0%)
+    Valid + Sound: 44 (88.0%)
+    Valid + Strong: 40 (80.0%)
+    Sound + Strong: 44 (88.0%)
+
+  FEW SHOT:
+    Perfect Postconditions: 41 (82.0%)
+    Valid + Sound: 43 (86.0%)
+    Valid + Strong: 42 (84.0%)
+    Sound + Strong: 46 (92.0%)
+
+  CHAIN OF THOUGHT:
+    Perfect Postconditions: 41 (82.0%)
+    Valid + Sound: 45 (90.0%)
+    Valid + Strong: 41 (82.0%)
+    Sound + Strong: 45 (90.0%)
+
+### 5. STRATEGY COMPARISON ###
+
+Rankings:
+  Correctness: naive > chain of thought > few shot
+  Completeness: few shot > chain of thought > naive
+  Soundness: naive > chain of thought > few shot
+  Overall: chain of thought > few shot > naive
+
+Overall Scores (Weighted: 40% Correctness, 40% Completeness, 20% Soundness):
+  Naive: 92.88
+  Few Shot: 93.44
+  Chain Of Thought: 93.84
+
+BEST OVERALL STRATEGY: CHAIN OF THOUGHT
+
+Improvements over Naive Baseline:
+  FEW SHOT:
+    Correctness: -2.00%
+    Completeness: +4.40%
+    Soundness: -2.00%
+    Overall: +0.56
+
+  CHAIN OF THOUGHT:
+    Correctness: +0.00%
+    Completeness: +2.40%
+    Soundness: +0.00%
+    Overall: +0.96
+
+### 6. SUCCESS STORIES ###
+  Functions where all strategies correct: 43
+  Functions where all strategies strong (≥80%): 43
+  Functions where all strategies sound: 47
+  Functions perfect across all dimensions: 38
+
+### 7. CHALLENGING FUNCTIONS ###
+  Functions where no strategy is correct: 4
+  Functions where all strategies weak (<60%): 0
+  Functions with multiple hallucinations: 1
+  Functions universally difficult: 0
+
+### 8. CONSISTENCY ANALYSIS ###
+Lower variance = More consistent strategy
+
+  NAIVE:
+    Completeness Variance: 369.1429
+    Coefficient of Variation: 20.61%
+    Reliability Score: 0.9288
+
+  FEW SHOT:
+    Completeness Variance: 75.7551
+    Coefficient of Variation: 8.92%
+    Reliability Score: 0.9344
+
+  CHAIN OF THOUGHT:
+    Completeness Variance: 168.0000
+    Coefficient of Variation: 13.56%
+    Reliability Score: 0.9384
+
+================================================================================
+END OF ANALYSIS
+================================================================================

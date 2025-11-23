@@ -6,6 +6,10 @@ A postcondition is unsound if it references undefined variables.
 import json
 import ast
 from pathlib import Path
+import warnings
+
+# Suppress repetitive SyntaxWarnings from functions with invalid escape sequences
+warnings.filterwarnings("ignore", category=SyntaxWarning)
 
 # --- Path Setup ---
 PROJECT_ROOT = Path(__file__).parent.parent

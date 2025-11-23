@@ -84,15 +84,15 @@
         ]
     },
     {
-        "source_file": "Benchmark Questions Verification V2.ipynb",
-        "task_id": 7,
-        "prompt": "Write a function to find all words which are at least 4 characters long in a string.",
-        "code": "import re\ndef find_char_long(text):\n  return (re.findall(r\"\\b\\w{4,}\\b\", text))",
+        "source_file": "Mike's Copy of Benchmark Questions Verification V2.ipynb",
+        "task_id": 123,
+        "prompt": "Write a function to sum all amicable numbers from 1 to a specified number.",
+        "code": "def amicable_numbers_sum(limit):\n    if not isinstance(limit, int):\n        return \"Input is not an integer!\"\n    if limit < 1:\n        return \"Input must be bigger than 0!\"\n    amicables = set()\n    for num in range(2, limit+1):\n        if num in amicables:\n            continue\n        sum_fact = sum([fact for fact in range(1, num) if num % fact == 0])\n        sum_fact2 = sum([fact for fact in range(1, sum_fact) if sum_fact % fact == 0])\n        if num == sum_fact2 and num != sum_fact:\n            amicables.add(num)\n            amicables.add(sum_fact2)\n    return sum(amicables)",
         "test_imports": [],
         "test_list": [
-            "assert set(find_char_long('Please move back to stream')) == set(['Please', 'move', 'back', 'stream'])",
-            "assert set(find_char_long('Jing Eco and Tech')) == set(['Jing', 'Tech'])",
-            "assert set(find_char_long('Jhingai wulu road Zone 3')) == set(['Jhingai', 'wulu', 'road', 'Zone'])"
+            "assert amicable_numbers_sum(999)==504",
+            "assert amicable_numbers_sum(9999)==31626",
+            "assert amicable_numbers_sum(99)==0"
         ]
     },
     {
@@ -479,15 +479,15 @@
         ]
     },
     {
-        "source_file": "Benchmark Questions Verification V2.ipynb",
-        "task_id": 565,
-        "prompt": "Write a python function to split a string into characters.",
-        "code": "def split(word): \n    return [char for char in word] ",
+        "source_file": "Ellen's Copy of Benchmark Questions Verification V2.ipynb",
+        "task_id": 307,
+        "prompt": "Write a function to get a colon of a tuple.",
+        "code": "from copy import deepcopy\ndef colon_tuplex(tuplex,m,n):\n  tuplex_colon = deepcopy(tuplex)\n  tuplex_colon[m].append(n)\n  return tuplex_colon",
         "test_imports": [],
         "test_list": [
-            "assert split('python') == ['p','y','t','h','o','n']",
-            "assert split('Name') == ['N','a','m','e']",
-            "assert split('program') == ['p','r','o','g','r','a','m']"
+            "assert colon_tuplex((\"HELLO\", 5, [], True) ,2,50)==(\"HELLO\", 5, [50], True)",
+            "assert colon_tuplex((\"HELLO\", 5, [], True) ,2,100)==((\"HELLO\", 5, [100],True))",
+            "assert colon_tuplex((\"HELLO\", 5, [], True) ,2,500)==(\"HELLO\", 5, [500], True)"
         ]
     },
     {
