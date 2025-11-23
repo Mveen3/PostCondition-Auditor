@@ -1,20 +1,43 @@
-# Python runtime garbage
+# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
 
 # Virtual environments
-.venv/
 venv/
+env/
+ENV/
 
-# Secrets
-.env
-.env.local
-
-# Version control
-.git/
-
-# IDE
+# IDE files
 .vscode/
+.idea/
+*.swp
+*.swo
 
-# OS junk
+# OS files
 .DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+LICENSE
+
+# Large output files (build these inside container)
+src/reports/
+src/dataset/test_cases.json
+src/dataset/generated_postconditions.json
+src/dataset/processed_mbpp.json
+
+# Environment variables (handled separately)
+.env
+
+# Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml

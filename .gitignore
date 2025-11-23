@@ -1,24 +1,61 @@
-# Ignore virtual environment
-.venv/
-venv/
-
-# Ignore Python cache and compiled files
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.hypothesis/
 
-# Ignore environment variables and keys
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
 .env
 
-# Ignore output files and datasets
-outputs/
-data/
+# Generated outputs (too large for git)
+src/reports/
+src/dataset/test_cases.json
+src/dataset/generated_postconditions.json
+src/dataset/processed_mbpp.json
 
-# Ignore system/editor junk
-.DS_Store
+# Keep raw dataset and directory structure
+!src/dataset/raw_mbpp.json
+!src/dataset/.gitkeep
+!src/reports/.gitkeep
+
+# Logs
 *.log
 
-# Ignore current status
-ref_mat/current_status.md
-
-.hypothesis/
-Ref_Material/
+# Jupyter Notebooks (if any)
+.ipynb_checkpoints/

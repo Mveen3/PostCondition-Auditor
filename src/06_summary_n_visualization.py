@@ -5,7 +5,7 @@ Behavior:
 - Reads correctness, completeness, and soundness reports
 - Computes all metrics
 - Generates analysis_summary.txt with detailed insights
-- Generates all visualizations in src/evaluation/visualizations/
+- Generates all visualizations in src/reports/visualizations/
 - Prints a quick summary to the console
 """
 
@@ -21,18 +21,14 @@ import seaborn as sns
 import numpy as np
 
 
-# ---------------------------------------------------------------------------
-# Paths & Configuration
-# ---------------------------------------------------------------------------
-
 # Input report files
-CORRECTNESS_REPORT = "src/evaluation/correctness_report.json"
-COMPLETENESS_REPORT = "src/evaluation/completeness_report.json"
-SOUNDNESS_REPORT = "src/evaluation/soundness_report.json"
+CORRECTNESS_REPORT = "src/reports/correctness_report.json"
+COMPLETENESS_REPORT = "src/reports/completeness_report.json"
+SOUNDNESS_REPORT = "src/reports/soundness_report.json"
 
 # Outputs
-SUMMARY_FILE = "src/evaluation/analysis_summary.txt"
-OUTPUT_DIR = "src/evaluation/visualizations"
+SUMMARY_FILE = "src/reports/analysis_summary.txt"
+OUTPUT_DIR = "src/reports/visualizations"
 
 # Visualization config
 COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1']  # Red, Teal, Blue
@@ -45,10 +41,6 @@ STRATEGY_NAMES = {
 # Ensure output directory exists
 Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
 
-
-# ---------------------------------------------------------------------------
-# Load Reports (from generate_insights.py)
-# ---------------------------------------------------------------------------
 
 def load_reports() -> Tuple[Dict, Dict, Dict]:
     """Load all three evaluation reports."""
@@ -64,10 +56,7 @@ def load_reports() -> Tuple[Dict, Dict, Dict]:
     return correctness, completeness, soundness
 
 
-# ---------------------------------------------------------------------------
-# Metrics Computation (from generate_insights.py)
-# ---------------------------------------------------------------------------
-
+# Metrics Computation Functions
 def calculate_correctness_metrics(correctness_data: Dict) -> Dict:
     """
     Calculate correctness (validity) metrics.
@@ -405,9 +394,7 @@ def calculate_consistency_metrics(correctness_data: Dict, completeness_data: Dic
     return consistency
 
 
-# ---------------------------------------------------------------------------
-# Summary Report (from generate_insights.py, but no JSON writing)
-# ---------------------------------------------------------------------------
+# Summary Report Generation
 
 def generate_summary_report(all_metrics: Dict) -> str:
     """
@@ -542,10 +529,7 @@ def generate_summary_report(all_metrics: Dict) -> str:
     return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Visualization Helpers (from visualize.py, adapted to use in-memory data)
-# ---------------------------------------------------------------------------
-
+# Visualization Helper Functions
 def set_style():
     """Set consistent style for all plots."""
     sns.set_style("whitegrid")
@@ -888,9 +872,9 @@ def plot_improvements_over_baseline(data):
 
     fig, ax = plt.subplots(figsize=(12, 7))
     bars1 = ax.bar(x - width / 2, few_shot_vals, width, label='Few-Shot',
-                   color=COLORS[1], alpha=0.8, edgecolor='black', linewidth=1.5)
+                   color=COLORS[0], alpha=0.8, edgecolor='black', linewidth=1.5)
     bars2 = ax.bar(x + width / 2, cot_vals, width, label='Chain-of-Thought',
-                   color=COLORS[2], alpha=0.8, edgecolor='black', linewidth=1.5)
+                   color=COLORS[1], alpha=0.8, edgecolor='black', linewidth=1.5)
 
     for bars in [bars1, bars2]:
         for bar in bars:
@@ -1136,9 +1120,7 @@ Top Soundness:
     print("✓ Comprehensive dashboard saved")
 
 
-# ---------------------------------------------------------------------------
-# Quick Summary (from quick_summary.py, adapted to use in-memory data)
-# ---------------------------------------------------------------------------
+# Quick Summary Function
 
 def print_quick_summary(data):
     """Print a quick, formatted summary."""
@@ -1238,7 +1220,7 @@ def print_quick_summary(data):
     print(f"      • {success['all_strategies_strong_count']} functions where all strategies are strong (≥80%)")
     print(f"      • {success['all_strategies_sound_count']} functions where all strategies are sound")
 
-    print(f"\n   ⚠️  Challenges:")
+    print(f"\n   🔧  Challenges:")
     print(f"      • {challenges['no_strategy_correct_count']} functions where no strategy is correct")
     print(f"      • {challenges['all_strategies_weak_count']} functions where all strategies are weak (<60%)")
     print(f"      • {challenges['multiple_hallucinations_count']} functions with multiple hallucinations")
@@ -1255,8 +1237,8 @@ def print_quick_summary(data):
         print(f"   {name}: CV={cv:.2f}%, Reliability={rel:.4f}")
 
     print("\n" + "=" * 80)
-    print(" 📈 Detailed analysis has been written to: src/evaluation/analysis_summary.txt")
-    print(" 📊 Visualizations have been saved to:   src/evaluation/visualizations/")
+    print(" 📈 Detailed analysis has been written to: src/reports/analysis_summary.txt")
+    print(" 📊 Visualizations have been saved to:   src/reports/visualizations/")
     print("=" * 80 + "\n")
 
 

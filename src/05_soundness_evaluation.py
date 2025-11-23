@@ -10,7 +10,7 @@ from pathlib import Path
 # --- Path Setup ---
 PROJECT_ROOT = Path(__file__).parent.parent
 GENERATED_POSTCONDITIONS_FILE = PROJECT_ROOT / "src" / "dataset" / "generated_postconditions.json"
-OUTPUT_FILE = PROJECT_ROOT / "src" / "evaluation" / "soundness_report.json"
+OUTPUT_FILE = PROJECT_ROOT / "src" / "reports" / "soundness_report.json"
 
 # Allowed built-in names
 ALLOWED_BUILTINS = {

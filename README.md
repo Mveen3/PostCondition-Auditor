@@ -45,9 +45,9 @@ Postcondition_Auditor/
     │   ├── processed_mbpp.json       # 50 randomly selected functions from MBPP dataset
     │   ├── generated_postconditions.json  # LLM-generated postconditions
     │   └── test_cases.json           # Hypothesis-generated test cases
-    └── evaluation/
+    └── reports/
         ├── correctness_report.json   # Correctness evaluation results
-        ├── completeness_report.json  # Mutation testing results
+        ├── completeness_report_mutmut.json  # Mutmut-style mutation testing results
         ├── soundness_report.json     # Soundness evaluation results
         ├── analysis_summary.txt      # Comprehensive text report
         └── visualizations/           # Generated charts & plots
@@ -140,45 +140,73 @@ Postcondition_Auditor/
 
 **Output**: 
 - `src/dataset/test_cases.json` (1000 test cases per function)
-- `src/evaluation/correctness_report.json`
+- `src/reports/correctness_report.json`
 
 ---
 
 ### 4. Completeness Evaluation (`04_completeness_evaluation.py`)
 
-**Purpose**: Measures how well postconditions detect bugs using mutation testing.
+**Purpose**: Measures how well postconditions detect bugs using Mutmut-style mutation testing.
 
-**Mutation Testing Approach**:
-- Generates 5 mutants per function using AST transformations
-- Mutation operators:
-  - **Comparison mutations**: `>` ↔ `>=`, `==` ↔ `!=`
-  - **Arithmetic mutations**: `+` ↔ `-`, `*` ↔ `//`
-  - **Range mutations**: Off-by-one errors (`range(n)` → `range(n+1)`)
-  - **Subscript mutations**: Index changes (`arr[i]` → `arr[i+1]`)
-  - **Constant mutations**: Numeric value changes
-  - **Return mutations**: Return value modifications
-  - **Boolean mutations**: `and` ↔ `or`
+**Mutation Testing Approach** (Mutmut-Inspired):
+- Generates exactly 5 unique mutants per function using standardized mutation operators
+- Filters duplicate and equivalent mutants for quality assurance
+- Implements timeout protection to prevent hanging (30s per function)
 
-**Fallback Strategies**:
-If standard mutations insufficient, applies:
-- Compound mutations (2+ operators combined)
-- Stacked mutations (mutating previous mutants)
-- Exhaustive mutation attempts
+**Standardized Mutation Operators**:
+1. **ROR (Relational Operator Replacement)**:
+   - Standard: `>` ↔ `<`, `>=` ↔ `<=`, `==` ↔ `!=`
+   - Aggressive: `>` → `==`, `>=` → `<`, etc.
+
+2. **AOR (Arithmetic Operator Replacement)**:
+   - `+` ↔ `-`, `*` ↔ `/`, `%` → `*`
+
+3. **LOR (Logical Operator Replacement)**:
+   - `and` ↔ `or`
+
+4. **CRP (Constant Replacement)**:
+   - Standard: `0` → `1`, `n` → `n+1`
+   - Aggressive: `n` → `n*2`
+
+5. **UOI (Unary Operator Insertion/Deletion)**:
+   - Remove `not`, change `-x` → `+x`
+
+6. **RSM (Return Statement Mutation)**:
+   - Replace return value with `None`
+
+**Multi-Strategy Mutant Generation**:
+1. **Standard mutations**: Default operator replacements
+2. **Aggressive mutations**: Alternative mutation patterns for diversity
+3. **Compound mutations**: Apply 2 mutations simultaneously (limited to 20 attempts)
+4. **Constant variations**: Off-by-one errors in numeric constants
+5. **Smart padding**: Further mutate existing mutants if needed
+6. **Last resort duplicates**: Ensures exactly 5 mutants per function
+
+**Equivalence Detection**:
+- Tests mutants against sample test cases (max 10)
+- Filters semantically equivalent mutants (same behavior as original)
+- 2-second timeout per equivalence check
 
 **Evaluation Process**:
-1. Generate mutants of original function
-2. Run postcondition against mutant with test cases
+1. Generate 5 unique, non-equivalent mutants per function
+2. Run postcondition against each mutant with test cases (max 100)
 3. If postcondition fails → mutant is "killed" (good!)
-4. Calculate kill rate percentage
+4. Calculate kill rate percentage: `(killed / total) * 100`
+
+**Performance Optimizations**:
+- Timeout protection at multiple levels (equivalence check, test execution, overall generation)
+- Limited loop iterations to prevent infinite loops
+- Reduced test case sampling for efficiency
 
 **Libraries Used**:
 - `ast`: Abstract syntax tree manipulation for mutations
 - `copy`: Deep copying AST for safe mutations
-- `signal`: Timeout protection (1 second per test case)
+- `signal`: Multi-level timeout protection
+- `json`: Result serialization
 
 **Metrics**: Kill rate percentage (0-100%) per strategy
 
-**Output**: `src/evaluation/completeness_report.json`
+**Output**: `src/reports/completeness_report.json`
 
 ---
 
@@ -209,7 +237,7 @@ Checks if postcondition references any identifier that doesn't exist in:
 - `ast`: AST parsing and identifier extraction
 - `builtins`: Built-in function validation
 
-**Output**: `src/evaluation/soundness_report.json`
+**Output**: `src/reports/soundness_report.json`
 
 ---
 
@@ -255,8 +283,8 @@ Checks if postcondition references any identifier that doesn't exist in:
 - `statistics`: Statistical measures (mean, median, stdev)
 
 **Output**: 
-- `src/evaluation/analysis_summary.txt` (comprehensive text report)
-- `src/evaluation/visualizations/*.png` (multiple charts)
+- `src/reports/analysis_summary.txt` (comprehensive text report)
+- `src/reports/visualizations/*.png` (multiple charts)
 
 ---
 
@@ -269,9 +297,9 @@ Checks if postcondition references any identifier that doesn't exist in:
 | `google-generativeai` | Google Gemini LLM API client |
 | `python-dotenv` | Environment variable management |
 | `hypothesis` | Property-based test generation |
+| Custom Mutmut-style | Standardized mutation operators (ROR, AOR, LOR, CRP, UOI, RSM) |
 | `matplotlib` | Data visualization |
 | `seaborn` | Statistical plots |
-| `pandas` | Data manipulation |
 
 ### Python Standard Library
 
@@ -358,12 +386,12 @@ After running the complete pipeline, you'll have:
 - `src/dataset/test_cases.json`: 1000 test cases per function (50,000 total)
 
 #### Evaluation Reports
-- `src/evaluation/correctness_report.json`: Binary pass/fail per function per strategy
-- `src/evaluation/completeness_report.json`: Kill rate percentages (0-100)
-- `src/evaluation/soundness_report.json`: Sound/hallucinated flags per function
+- `src/reports/correctness_report.json`: Binary pass/fail per function per strategy
+- `src/reports/completeness_report.json`: Kill rate percentages (0-100)
+- `src/reports/soundness_report.json`: Sound/hallucinated flags per function
 
 #### Analysis Outputs
-- `src/evaluation/analysis_summary.txt`: Comprehensive text report with:
+- `src/reports/analysis_summary.txt`: Comprehensive text report with:
   - Overall metrics per strategy
   - Statistical analysis (mean, median, std dev)
   - Best/worst performing functions
@@ -424,10 +452,13 @@ After running the complete pipeline, you'll have:
 - **Type Inference**: Automatically infers correct input types from examples
 - **Infinite Loop Protection**: 10-second timeout per test case + stall detection
 
-### Robust Mutation Testing
-- **7 Mutation Operators**: Comprehensive coverage of common bug patterns
-- **Fallback Strategies**: Ensures 5 mutants per function even for simple code
-- **Efficient Evaluation**: Uses only 100 test cases per mutant for performance
+### Robust Mutation Testing (Mutmut-Inspired)
+- **6 Standardized Mutation Operators**: ROR, AOR, LOR, CRP, UOI, RSM (research-proven)
+- **Equivalence Detection**: Filters mutants with identical behavior to original
+- **Multi-Strategy Generation**: Standard → Aggressive → Compound → Variations → Padding
+- **Timeout Protection**: 30-second limit per function, 2-second per equivalence check
+- **Quality Assurance**: Guarantees exactly 5 unique, non-equivalent mutants per function
+- **Efficient Evaluation**: Uses up to 100 test cases per mutant for performance
 
 ### Comprehensive Analysis
 - **Multi-Dimensional Evaluation**: Correctness, completeness, and soundness
@@ -474,7 +505,7 @@ This project implements an automated evaluation framework for assessing the qual
 - Dataset: MBPP (Mostly Basic Python Problems)
 - Sample Size: 50 functions
 - Test Cases: 1000 per function (Hypothesis-generated)
-- Mutants: 5 per function (AST-based)
+- Mutants: 5 per function (Mutmut-inspired generation with equivalence filtering)
 - LLM: Google Gemini 2.5 Flash
 
 

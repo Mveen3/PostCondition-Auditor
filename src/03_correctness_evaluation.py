@@ -15,7 +15,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 PROCESSED_MBPP_FILE = PROJECT_ROOT / "src" / "dataset" / "processed_mbpp.json"
 GENERATED_POSTCONDITIONS_FILE = PROJECT_ROOT / "src" / "dataset" / "generated_postconditions.json"
 TEST_CASES_FILE = PROJECT_ROOT / "src" / "dataset" / "test_cases.json"
-OUTPUT_FILE = PROJECT_ROOT / "src" / "evaluation" / "correctness_report.json"
+OUTPUT_FILE = PROJECT_ROOT / "src" / "reports" / "correctness_report.json"
 
 
 def load_json(file_path: Path) -> any:

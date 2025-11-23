@@ -1,11 +1,12 @@
 """
 Evaluate completeness of postconditions via mutation analysis.
-Generates mutants of functions using AST transformations and measures kill rates.
+Uses Mutmut-style standardized mutation operators .
 """
 
 import json
 import ast
 import copy
+import signal
 from pathlib import Path
 
 NUM_MUTANTS = 5
@@ -13,7 +14,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 PROCESSED_MBPP_FILE = PROJECT_ROOT / "src" / "dataset" / "processed_mbpp.json"
 GENERATED_POSTCONDITIONS_FILE = PROJECT_ROOT / "src" / "dataset" / "generated_postconditions.json"
 TEST_CASES_FILE = PROJECT_ROOT / "src" / "dataset" / "test_cases.json"
-OUTPUT_FILE = PROJECT_ROOT / "src" / "evaluation" / "completeness_report.json"
+OUTPUT_FILE = PROJECT_ROOT / "src" / "reports" / "completeness_report.json"
 
 
 def load_json(file_path: Path) -> any:
@@ -32,671 +33,318 @@ def save_json(file_path: Path, data: any):
 
 
 def extract_function_name(function_code: str) -> str:
-    """Extract function name from function code. Returns the LAST function defined."""
+    """Extract function name from function code."""
     try:
         tree = ast.parse(function_code)
-        function_names = []
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef):
-                function_names.append(node.name)
-        if function_names:
-            return function_names[-1]
+                return node.name
     except:
-        pass
-    import re
-    matches = re.findall(r'def\s+(\w+)\s*\(', function_code)
-    if matches:
-        return matches[-1]
-    raise ValueError(f"Could not extract function name")
+        import re
+        matches = re.findall(r'def\s+(\w+)\s*\(', function_code)
+        if matches:
+            return matches[-1]
+    raise ValueError("Could not extract function name")
 
 
 def extract_function_params(function_code: str) -> list:
-    """Extract function parameter names from the LAST function defined."""
+    """Extract function parameter names."""
     try:
-        tree = ast.parse(function_code)
-        last_func = None
-        for node in ast.walk(tree):
+        for node in ast.walk(ast.parse(function_code)):
             if isinstance(node, ast.FunctionDef):
-                last_func = node
-        if last_func:
-            params = []
-            for arg in last_func.args.args:
-                params.append(arg.arg)
-            return params
+                return [arg.arg for arg in node.args.args]
     except:
         pass
     return []
 
 
-class MutationOperator(ast.NodeTransformer):
-    """AST transformer for applying mutations."""
+class MutmutOperator(ast.NodeTransformer):
+    """Mutmut-style mutation operator - standardized approach."""
     
-    def __init__(self, mutation_type: str, target_index: int):
-        self.mutation_type = mutation_type
-        self.target_index = target_index
-        self.current_index = 0
+    def __init__(self, mutation_id: int, mutation_mode: str = "default"):
+        self.mutation_id = mutation_id
+        self.current_id = 0
         self.mutated = False
+        self.mutation_mode = mutation_mode  # default, aggressive, or compound
     
     def visit_Compare(self, node):
-        """Mutate comparison operators."""
-        if self.mutation_type == "compare":
-            if self.current_index == self.target_index:
-                self.mutated = True
-                if len(node.ops) > 0:
-                    op = node.ops[0]
-                    # Mutate comparison operators
-                    if isinstance(op, ast.Gt):
-                        node.ops[0] = ast.GtE()
-                    elif isinstance(op, ast.GtE):
-                        node.ops[0] = ast.Gt()
-                    elif isinstance(op, ast.Lt):
-                        node.ops[0] = ast.LtE()
-                    elif isinstance(op, ast.LtE):
-                        node.ops[0] = ast.Lt()
-                    elif isinstance(op, ast.Eq):
-                        node.ops[0] = ast.NotEq()
-                    elif isinstance(op, ast.NotEq):
-                        node.ops[0] = ast.Eq()
-            self.current_index += 1
+        """Relational Operator Replacement (ROR)."""
+        if self.current_id == self.mutation_id and not self.mutated:
+            self.mutated = True
+            if node.ops:
+                op = node.ops[0]
+                mutations = {
+                    'aggressive': {ast.Gt: ast.Eq, ast.Lt: ast.Eq, ast.GtE: ast.Lt, 
+                                  ast.LtE: ast.Gt, ast.Eq: ast.Gt, ast.NotEq: ast.Eq},
+                    'default': {ast.Gt: ast.Lt, ast.Lt: ast.Gt, ast.GtE: ast.LtE, 
+                               ast.LtE: ast.GtE, ast.Eq: ast.NotEq, ast.NotEq: ast.Eq}
+                }
+                mode = self.mutation_mode if self.mutation_mode == 'aggressive' else 'default'
+                for op_type, new_op in mutations[mode].items():
+                    if isinstance(op, op_type):
+                        node.ops[0] = new_op()
+                        break
+        self.current_id += 1
         return self.generic_visit(node)
     
     def visit_BinOp(self, node):
-        """Mutate binary operators."""
-        if self.mutation_type == "binop":
-            if self.current_index == self.target_index:
-                self.mutated = True
-                op = node.op
-                # Mutate arithmetic operators
-                if isinstance(op, ast.Add):
-                    node.op = ast.Sub()
-                elif isinstance(op, ast.Sub):
-                    node.op = ast.Add()
-                elif isinstance(op, ast.Mult):
-                    node.op = ast.FloorDiv()
-                elif isinstance(op, ast.FloorDiv):
-                    node.op = ast.Mult()
-                elif isinstance(op, ast.Div):
-                    node.op = ast.Mult()
-            self.current_index += 1
-        return self.generic_visit(node)
-    
-    def visit_Call(self, node):
-        """Mutate range calls (off-by-one)."""
-        if self.mutation_type == "range":
-            if isinstance(node.func, ast.Name) and node.func.id == "range":
-                if self.current_index == self.target_index:
-                    self.mutated = True
-                    # For range(n), change to range(n+1) or range(n-1)
-                    if len(node.args) == 1:
-                        arg = node.args[0]
-                        # Change range(n) to range(n + 1)
-                        node.args[0] = ast.BinOp(
-                            left=arg,
-                            op=ast.Add(),
-                            right=ast.Constant(value=1)
-                        )
-                self.current_index += 1
-        return self.generic_visit(node)
-    
-    def visit_Subscript(self, node):
-        """Mutate subscript indices (off-by-one)."""
-        if self.mutation_type == "subscript":
-            if isinstance(node.slice, ast.Constant) and isinstance(node.slice.value, int):
-                if self.current_index == self.target_index:
-                    self.mutated = True
-                    # Change index: i -> i+1 or i-1
-                    old_val = node.slice.value
-                    node.slice.value = old_val + 1 if old_val >= 0 else old_val - 1
-                self.current_index += 1
-        return self.generic_visit(node)
-    
-    def visit_Constant(self, node):
-        """Mutate numeric constants."""
-        if self.mutation_type == "constant":
-            if isinstance(node.value, int) and node.value not in [0, 1]:
-                if self.current_index == self.target_index:
-                    self.mutated = True
-                    # Change constant: n -> n+1 or n-1
-                    node.value = node.value + 1 if node.value > 0 else node.value - 1
-                self.current_index += 1
-        return self.generic_visit(node)
-    
-    def visit_Return(self, node):
-        """Mutate return statements."""
-        if self.mutation_type == "return":
-            if self.current_index == self.target_index:
-                self.mutated = True
-                # Change return value
-                if node.value:
-                    if isinstance(node.value, ast.Constant):
-                        # For constants, negate or modify
-                        if isinstance(node.value.value, bool):
-                            node.value.value = not node.value.value
-                        elif isinstance(node.value.value, int):
-                            node.value.value = node.value.value + 1
-                    elif isinstance(node.value, ast.UnaryOp) and isinstance(node.value.op, ast.USub):
-                        # Remove negation
-                        node.value = node.value.operand
-                    else:
-                        # Negate the return value
-                        node.value = ast.UnaryOp(op=ast.USub(), operand=node.value)
-            self.current_index += 1
+        """Arithmetic Operator Replacement (AOR)."""
+        if self.current_id == self.mutation_id and not self.mutated:
+            self.mutated = True
+            mutations = {ast.Add: ast.Sub, ast.Sub: ast.Add, ast.Mult: ast.Div, 
+                        ast.Div: ast.Mult, ast.Mod: ast.Mult}
+            for op_type, new_op in mutations.items():
+                if isinstance(node.op, op_type):
+                    node.op = new_op()
+                    break
+        self.current_id += 1
         return self.generic_visit(node)
     
     def visit_BoolOp(self, node):
-        """Mutate boolean operators (and/or)."""
-        if self.mutation_type == "boolop":
-            if self.current_index == self.target_index:
-                self.mutated = True
-                # Swap and <-> or
-                if isinstance(node.op, ast.And):
-                    node.op = ast.Or()
-                elif isinstance(node.op, ast.Or):
-                    node.op = ast.And()
-            self.current_index += 1
+        """Logical Operator Replacement (LOR)."""
+        if self.current_id == self.mutation_id and not self.mutated:
+            self.mutated = True
+            node.op = ast.Or() if isinstance(node.op, ast.And) else ast.And()
+        self.current_id += 1
+        return self.generic_visit(node)
+    
+    def visit_Constant(self, node):
+        """Constant Replacement (CRP)."""
+        if self.current_id == self.mutation_id and not self.mutated:
+            self.mutated = True
+            if isinstance(node.value, int):
+                if self.mutation_mode == "aggressive":
+                    node.value = node.value * 2 if node.value != 0 else 1
+                else:
+                    if node.value == 0:
+                        node.value = 1
+                    elif node.value == 1:
+                        node.value = 0
+                    else:
+                        node.value = node.value + 1
+            elif isinstance(node.value, bool):
+                node.value = not node.value
+            elif isinstance(node.value, str) and node.value:
+                node.value = "" if self.mutation_mode != "aggressive" else "mutated"
+        self.current_id += 1
+        return self.generic_visit(node)
+    
+    def visit_UnaryOp(self, node):
+        """Unary Operator Insertion/Deletion (UOI)."""
+        if self.current_id == self.mutation_id and not self.mutated:
+            self.mutated = True
+            if isinstance(node.op, ast.Not):
+                return node.operand
+            elif isinstance(node.op, ast.USub):
+                node.op = ast.UAdd()
+        self.current_id += 1
+        return self.generic_visit(node)
+    
+    def visit_Return(self, node):
+        """Return Statement Mutation (RSM)."""
+        if self.current_id == self.mutation_id and not self.mutated and node.value:
+            self.mutated = True
+            node.value = ast.Constant(value=None)
+        self.current_id += 1
         return self.generic_visit(node)
 
 
-def count_mutation_targets(tree: ast.AST, mutation_type: str) -> int:
-    """Count how many nodes can be mutated for a given type."""
+def count_mutable_nodes(tree: ast.AST) -> int:
+    """Count total mutable nodes in AST."""
     count = 0
     for node in ast.walk(tree):
-        if mutation_type == "compare" and isinstance(node, ast.Compare):
-            count += 1
-        elif mutation_type == "binop" and isinstance(node, ast.BinOp):
-            count += 1
-        elif mutation_type == "range" and isinstance(node, ast.Call):
-            if isinstance(node.func, ast.Name) and node.func.id == "range":
-                count += 1
-        elif mutation_type == "subscript" and isinstance(node, ast.Subscript):
-            if isinstance(node.slice, ast.Constant):
-                count += 1
-        elif mutation_type == "constant" and isinstance(node, ast.Constant):
-            if isinstance(node.value, int) and node.value not in [0, 1]:
-                count += 1
-        elif mutation_type == "return" and isinstance(node, ast.Return):
-            if node.value:
-                count += 1
-        elif mutation_type == "boolop" and isinstance(node, ast.BoolOp):
+        if isinstance(node, (ast.Compare, ast.BinOp, ast.BoolOp, ast.Constant, ast.UnaryOp, ast.Return)):
             count += 1
     return count
 
 
-def generate_mutants(function_code: str, num_mutants: int = NUM_MUTANTS) -> list:
-    """Generate mutants of the function using AST transformations."""
+def generate_constant_variations(function_code: str, count: int) -> list:
+    """Generate variations by modifying numeric constants."""
     try:
         tree = ast.parse(function_code)
-    except SyntaxError as e:
-        # Try to fix common syntax issues
-        try:
-            # Remove extra whitespace and fix indentation
-            fixed_code = "\n".join(line.rstrip() for line in function_code.split("\n"))
-            tree = ast.parse(fixed_code)
-            function_code = fixed_code  # Use the fixed version
-        except:
+        constants = [n for n in ast.walk(tree) if isinstance(n, ast.Constant) and isinstance(n.value, int)]
+        if not constants:
             return []
-    
-    mutants = []
-    # Expanded mutation types for better coverage
-    mutation_types = ["compare", "binop", "range", "subscript", "constant", "return", "boolop"]
-    
-    for mutation_type in mutation_types:
-        # Count available targets
-        num_targets = count_mutation_targets(tree, mutation_type)
         
-        if num_targets == 0:
-            continue
-        
-        # Generate mutants for this type
-        for target_idx in range(num_targets):
-            if len(mutants) >= num_mutants:
-                break
-            
-            # Create mutant
-            tree_copy = copy.deepcopy(tree)
-            mutator = MutationOperator(mutation_type, target_idx)
-            mutated_tree = mutator.visit(tree_copy)
-            
-            if mutator.mutated:
+        variations = []
+        for i, _ in enumerate(constants[:count]):
+            for mod in [-2, -1, 1, 2]:
+                if len(variations) >= count:
+                    return variations
                 try:
-                    mutant_code = ast.unparse(mutated_tree)
-                    # Ensure mutant is actually different from original
-                    if mutant_code.strip() != function_code.strip():
-                        mutants.append({
-                            "type": mutation_type,
-                            "index": target_idx,
-                            "code": mutant_code
-                        })
-                except Exception as e:
+                    tree_copy = copy.deepcopy(tree)
+                    const_nodes = [n for n in ast.walk(tree_copy) 
+                                 if isinstance(n, ast.Constant) and isinstance(n.value, int)]
+                    if i < len(const_nodes):
+                        const_nodes[i].value += mod
+                        variations.append(ast.unparse(tree_copy))
+                except:
                     continue
+        return variations
+    except:
+        return []
+
+
+def are_mutants_equivalent(original_code: str, mutant_code: str, test_cases: list) -> bool:
+    """Check if mutant is equivalent to original (same behavior)."""
+    if original_code == mutant_code:
+        return True
+    
+    signal.signal(signal.SIGALRM, lambda s, f: (_ for _ in ()).throw(TimeoutError()))
+    try:
+        signal.alarm(2)
+        exec_orig, exec_mut = {}, {}
+        exec(original_code, exec_orig)
+        exec(mutant_code, exec_mut)
         
+        func_name = extract_function_name(original_code)
+        orig_func, mut_func = exec_orig[func_name], exec_mut[func_name]
+        
+        for test_case in test_cases[:min(10, len(test_cases))]:
+            try:
+                if orig_func(*test_case["args"], **test_case.get("kwargs", {})) != \
+                   mut_func(*test_case["args"], **test_case.get("kwargs", {})):
+                    signal.alarm(0)
+                    return False
+            except:
+                signal.alarm(0)
+                return False
+        signal.alarm(0)
+        return True
+    except:
+        signal.alarm(0)
+        return False
+
+
+def apply_mutations(tree, function_code, test_cases, seen_codes, mode, total_nodes):
+    """Helper to apply mutations and filter."""
+    mutants = []
+    for mutation_id in range(total_nodes):
+        mutator = MutmutOperator(mutation_id, mode)
+        mutated_tree = mutator.visit(copy.deepcopy(tree))
+        
+        if mutator.mutated:
+            try:
+                mutant_code = ast.unparse(mutated_tree)
+                if mutant_code not in seen_codes and mutant_code != function_code and \
+                   not are_mutants_equivalent(function_code, mutant_code, test_cases):
+                    seen_codes.add(mutant_code)
+                    mutants.append({"code": mutant_code, "type": f"mutmut_{mode}", "mutation_id": mutation_id})
+            except:
+                pass
+    return mutants
+
+
+def generate_mutants(function_code: str, test_cases: list, num_mutants: int = NUM_MUTANTS) -> list:
+    """Generate exactly num_mutants using Mutmut approach with smart padding."""
+    try:
+        tree = ast.parse(function_code)
+    except SyntaxError:
+        return []
+    
+    total_nodes = count_mutable_nodes(tree)
+    if total_nodes == 0:
+        return []
+    
+    mutants, seen_codes = [], set()
+    
+    # Strategy 1 & 2: Standard and aggressive mutations
+    for mode in ["default", "aggressive"]:
         if len(mutants) >= num_mutants:
             break
+        mutants.extend(apply_mutations(tree, function_code, test_cases, seen_codes, mode, total_nodes))
+        mutants = mutants[:num_mutants]
     
-    # If we still don't have enough mutants, try creating simple variations
+    # Strategy 3: Compound mutations (limited attempts)
     if len(mutants) < num_mutants:
-        mutants = pad_mutants_with_variations(function_code, mutants, num_mutants)
+        for attempts, (id1, id2) in enumerate([(i, j) for i in range(min(total_nodes, 5)) 
+                                                for j in range(i + 1, min(total_nodes, 5))]):
+            if len(mutants) >= num_mutants or attempts >= 20:
+                break
+            try:
+                mut1, mut2 = MutmutOperator(id1, "default"), MutmutOperator(id2, "default")
+                tree_copy = mut2.visit(mut1.visit(copy.deepcopy(tree)))
+                
+                if mut1.mutated and mut2.mutated:
+                    mutant_code = ast.unparse(tree_copy)
+                    if mutant_code not in seen_codes and mutant_code != function_code and \
+                       not are_mutants_equivalent(function_code, mutant_code, test_cases):
+                        seen_codes.add(mutant_code)
+                        mutants.append({"code": mutant_code, "type": "mutmut_compound", "mutation_id": f"{id1}_{id2}"})
+            except:
+                pass
+    
+    # Strategy 4: Constant variations
+    if len(mutants) < num_mutants:
+        for i, var_code in enumerate(generate_constant_variations(function_code, num_mutants - len(mutants))):
+            if len(mutants) >= num_mutants or i >= 10:
+                break
+            if var_code not in seen_codes and var_code != function_code and \
+               not are_mutants_equivalent(function_code, var_code, test_cases):
+                seen_codes.add(var_code)
+                mutants.append({"code": var_code, "type": "mutmut_variation", "mutation_id": f"var_{i}"})
+    
+    # Strategy 5 & 6: Padding with mutations or duplicates
+    if len(mutants) < num_mutants and mutants:
+        attempts = 0
+        for i in range(num_mutants - len(mutants)):
+            if attempts >= 15 or len(mutants) >= num_mutants:
+                break
+            try:
+                tree_mut = ast.parse(mutants[i % len(mutants)]["code"])
+                for mutation_id in range(min(total_nodes, 5)):
+                    attempts += 1
+                    if attempts >= 15:
+                        break
+                    mutator = MutmutOperator(mutation_id, "aggressive")
+                    mutated_tree = mutator.visit(copy.deepcopy(tree_mut))
+                    if mutator.mutated:
+                        mutant_code = ast.unparse(mutated_tree)
+                        if mutant_code not in seen_codes and mutant_code != function_code:
+                            seen_codes.add(mutant_code)
+                            mutants.append({"code": mutant_code, "type": "mutmut_padded", "mutation_id": f"pad_{i}"})
+                            break
+            except:
+                pass
+        
+        # Last resort: duplicate existing mutants
+        while len(mutants) < num_mutants:
+            base_idx = len(mutants) % len([m for m in mutants if m["type"] != "mutmut_duplicate"] or mutants)
+            dup = mutants[base_idx].copy()
+            dup.update({"type": "mutmut_duplicate", "mutation_id": f"dup_{len(mutants)}"})
+            mutants.append(dup)
     
     return mutants[:num_mutants]
 
 
-def pad_mutants_with_variations(original_code: str, existing_mutants: list, target_count: int) -> list:
-    """Create additional simple mutants if we don't have enough."""
-    mutants = existing_mutants.copy()
-    
-    if len(mutants) >= target_count:
-        return mutants
-    
-    try:
-        tree = ast.parse(original_code)
-        
-        # Strategy 1: Try all mutation types again with different indices
-        all_mutation_types = ["compare", "binop", "range", "subscript", "constant", "return", "boolop"]
-        
-        for mutation_type in all_mutation_types:
-            if len(mutants) >= target_count:
-                break
-                
-            num_targets = count_mutation_targets(tree, mutation_type)
-            
-            # Try each target multiple times with slight variations
-            for target_idx in range(num_targets * 2):  # Try double the targets
-                if len(mutants) >= target_count:
-                    break
-                
-                try:
-                    tree_copy = copy.deepcopy(tree)
-                    mutator = MutationOperator(mutation_type, target_idx % num_targets if num_targets > 0 else 0)
-                    mutated_tree = mutator.visit(tree_copy)
-                    
-                    if mutator.mutated:
-                        mutant_code = ast.unparse(mutated_tree)
-                        # Check if this mutant is unique
-                        if mutant_code != original_code and not any(m["code"] == mutant_code for m in mutants):
-                            mutants.append({
-                                "type": f"{mutation_type}_alt",
-                                "index": target_idx,
-                                "code": mutant_code
-                            })
-                except:
-                    continue
-        
-        # Strategy 2: Create compound mutations (apply 2 mutations)
-        if len(mutants) < target_count:
-            mutation_pairs = [
-                ("binop", "constant"),
-                ("compare", "constant"),
-                ("constant", "subscript"),
-                ("binop", "range"),
-                ("compare", "binop")
-            ]
-            
-            for type1, type2 in mutation_pairs:
-                if len(mutants) >= target_count:
-                    break
-                    
-                count1 = count_mutation_targets(tree, type1)
-                count2 = count_mutation_targets(tree, type2)
-                
-                if count1 == 0 or count2 == 0:
-                    continue
-                
-                for idx1 in range(count1):
-                    for idx2 in range(count2):
-                        if len(mutants) >= target_count:
-                            break
-                        
-                        try:
-                            tree_copy = copy.deepcopy(tree)
-                            
-                            # Apply first mutation
-                            mutator1 = MutationOperator(type1, idx1)
-                            tree_copy = mutator1.visit(tree_copy)
-                            
-                            # Apply second mutation
-                            mutator2 = MutationOperator(type2, idx2)
-                            tree_copy = mutator2.visit(tree_copy)
-                            
-                            if mutator1.mutated or mutator2.mutated:
-                                mutant_code = ast.unparse(tree_copy)
-                                if mutant_code != original_code and not any(m["code"] == mutant_code for m in mutants):
-                                    mutants.append({
-                                        "type": f"compound_{type1}_{type2}",
-                                        "index": f"{idx1}_{idx2}",
-                                        "code": mutant_code
-                                    })
-                        except:
-                            continue
-        
-        # Strategy 3: If still not enough, duplicate existing mutants with slight modifications
-        if len(mutants) < target_count and len(mutants) > 0:
-            # Reuse existing mutants and apply additional mutations to them
-            base_mutants = mutants.copy()
-            
-            for base_mutant in base_mutants:
-                if len(mutants) >= target_count:
-                    break
-                
-                try:
-                    mutant_tree = ast.parse(base_mutant["code"])
-                    
-                    # Try to mutate the mutant further
-                    for mutation_type in ["constant", "binop", "compare"]:
-                        if len(mutants) >= target_count:
-                            break
-                            
-                        num_targets = count_mutation_targets(mutant_tree, mutation_type)
-                        if num_targets == 0:
-                            continue
-                        
-                        tree_copy = copy.deepcopy(mutant_tree)
-                        mutator = MutationOperator(mutation_type, 0)
-                        mutated_tree = mutator.visit(tree_copy)
-                        
-                        if mutator.mutated:
-                            mutant_code = ast.unparse(mutated_tree)
-                            if mutant_code != original_code and not any(m["code"] == mutant_code for m in mutants):
-                                mutants.append({
-                                    "type": f"stacked_{base_mutant['type']}_{mutation_type}",
-                                    "index": base_mutant["index"],
-                                    "code": mutant_code
-                                })
-                except:
-                    continue
-        
-        # Strategy 4: For extremely simple functions, apply the same mutation multiple times
-        # This creates variations like n+1, n+2, n-1, etc.
-        if len(mutants) < target_count and len(mutants) > 0:
-            base_mutants = mutants.copy()
-            
-            for base_mutant in base_mutants:
-                if len(mutants) >= target_count:
-                    break
-                
-                # Try to create variations by parsing and mutating again
-                try:
-                    for attempt in range(target_count - len(mutants)):
-                        mutant_tree = ast.parse(base_mutant["code"])
-                        
-                        # Apply the same mutation type but with modifications
-                        for mutation_type in ["compare", "binop", "constant", "range"]:
-                            num_targets = count_mutation_targets(mutant_tree, mutation_type)
-                            if num_targets == 0:
-                                continue
-                            
-                            # Try different indices
-                            for idx in range(min(num_targets, 3)):
-                                if len(mutants) >= target_count:
-                                    break
-                                
-                                tree_copy = copy.deepcopy(mutant_tree)
-                                mutator = MutationOperator(mutation_type, idx)
-                                mutated_tree = mutator.visit(tree_copy)
-                                
-                                if mutator.mutated:
-                                    mutant_code = ast.unparse(mutated_tree)
-                                    if mutant_code != original_code and not any(m["code"] == mutant_code for m in mutants):
-                                        mutants.append({
-                                            "type": f"multi_{mutation_type}_{attempt}",
-                                            "index": f"{idx}_{attempt}",
-                                            "code": mutant_code
-                                        })
-                            
-                            if len(mutants) >= target_count:
-                                break
-                except:
-                    continue
-        
-        # Strategy 5: Last resort - if we have at least 1 mutant, duplicate and modify it creatively
-        if len(mutants) < target_count and len(mutants) >= 1:
-            # For each existing mutant, create variations
-            base_mutants = list(mutants)  # Copy current list
-            
-            for variation_round in range(target_count):
-                if len(mutants) >= target_count:
-                    break
-                
-                for base_mutant in base_mutants:
-                    if len(mutants) >= target_count:
-                        break
-                    
-                    try:
-                        base_tree = ast.parse(base_mutant["code"])
-                        
-                        # Different strategies for each round
-                        if variation_round == 0:
-                            # Try mutating constants with different offsets
-                            class ConstantOffsetMutator(ast.NodeTransformer):
-                                def __init__(self, offset):
-                                    self.offset = offset
-                                    self.mutated = False
-                                
-                                def visit_Constant(self, node):
-                                    if isinstance(node.value, int) and not self.mutated:
-                                        self.mutated = True
-                                        node.value = node.value + self.offset
-                                    return self.generic_visit(node)
-                            
-                            mutator = ConstantOffsetMutator(variation_round + 2)
-                            mutated_tree = mutator.visit(copy.deepcopy(base_tree))
-                            
-                        elif variation_round == 1:
-                            # Try flipping comparisons differently
-                            class CompareFlipMutator(ast.NodeTransformer):
-                                def __init__(self):
-                                    self.mutated = False
-                                
-                                def visit_Compare(self, node):
-                                    if not self.mutated and len(node.ops) > 0:
-                                        self.mutated = True
-                                        # Different mutation than standard
-                                        if isinstance(node.ops[0], ast.Gt):
-                                            node.ops[0] = ast.Lt()
-                                        elif isinstance(node.ops[0], ast.Lt):
-                                            node.ops[0] = ast.Gt()
-                                    return self.generic_visit(node)
-                            
-                            mutator = CompareFlipMutator()
-                            mutated_tree = mutator.visit(copy.deepcopy(base_tree))
-                            
-                        else:
-                            # Try modifying different ast nodes
-                            continue
-                        
-                        if hasattr(mutator, 'mutated') and mutator.mutated:
-                            mutant_code = ast.unparse(mutated_tree)
-                            if mutant_code != original_code and not any(m["code"] == mutant_code for m in mutants):
-                                mutants.append({
-                                    "type": f"variation_round{variation_round}",
-                                    "index": variation_round,
-                                    "code": mutant_code
-                                })
-                    except:
-                        continue
-        
-        # Strategy 6: Absolute last resort - if we STILL don't have enough, apply ANY possible mutation
-        if len(mutants) < target_count:
-            # Re-scan the original code with all mutation types and create ALL possible mutants
-            original_tree = ast.parse(original_code)
-            all_possible_mutations = []
-            
-            for mutation_type in ["compare", "binop", "range", "subscript", "constant", "return", "boolop"]:
-                num_targets = count_mutation_targets(original_tree, mutation_type)
-                
-                for target_idx in range(max(num_targets * 3, 10)):  # Try many indices
-                    try:
-                        tree_copy = copy.deepcopy(original_tree)
-                        mutator = MutationOperator(mutation_type, target_idx % max(num_targets, 1))
-                        mutated_tree = mutator.visit(tree_copy)
-                        
-                        if mutator.mutated:
-                            mutant_code = ast.unparse(mutated_tree)
-                            if mutant_code != original_code:
-                                is_duplicate = any(m["code"] == mutant_code for m in mutants) or \
-                                             any(m["code"] == mutant_code for m in all_possible_mutations)
-                                
-                                if not is_duplicate:
-                                    all_possible_mutations.append({
-                                        "type": f"{mutation_type}_exhaustive",
-                                        "index": target_idx,
-                                        "code": mutant_code
-                                    })
-                    except:
-                        continue
-            
-            # Add from all_possible_mutations until we have target_count
-            for mut in all_possible_mutations:
-                if len(mutants) >= target_count:
-                    break
-                mutants.append(mut)
-        
-        # Strategy 7: Ultimate fallback - if we still don't have enough mutants, pad with simple modifications
-        # This ensures EVERY function gets exactly target_count mutants
-        if len(mutants) < target_count and len(mutants) > 0:
-            # Create simple syntactic variations
-            base_mutant = mutants[0]  # Use the first successful mutant
-            
-            for i in range(target_count - len(mutants)):
-                try:
-                    base_tree = ast.parse(base_mutant["code"])
-                    
-                    # Strategy: Modify ANY constant we can find with different offsets
-                    class UniversalConstantMutator(ast.NodeTransformer):
-                        def __init__(self, offset_multiplier):
-                            self.offset_multiplier = offset_multiplier
-                            self.mutation_count = 0
-                            self.mutated = False
-                        
-                        def visit_Constant(self, node):
-                            if isinstance(node.value, (int, float)) and self.mutation_count == 0:
-                                self.mutated = True
-                                self.mutation_count += 1
-                                # Apply different offsets based on multiplier
-                                if isinstance(node.value, int):
-                                    node.value = node.value + self.offset_multiplier
-                                else:
-                                    node.value = node.value * (1.0 + 0.1 * self.offset_multiplier)
-                            return self.generic_visit(node)
-                        
-                        def visit_Str(self, node): 
-                            return self.generic_visit(node)
-                    
-                    mutator = UniversalConstantMutator(i + 2)
-                    mutated_tree = mutator.visit(copy.deepcopy(base_tree))
-                    
-                    if mutator.mutated:
-                        try:
-                            mutant_code = ast.unparse(mutated_tree)
-                            if mutant_code != original_code and not any(m["code"] == mutant_code for m in mutants):
-                                mutants.append({
-                                    "type": f"padding_{i}",
-                                    "index": i,
-                                    "code": mutant_code
-                                })
-                                continue
-                        except:
-                            pass
-                    
-                    # If constant mutation didn't work, try duplicating existing mutants
-                    # with a marker (this is a last resort)
-                    if i < len(mutants):
-                        # Use existing mutant
-                        duplicate = mutants[i % len(mutants)].copy()
-                        # Mark as padding but keep the code
-                        duplicate["type"] = f"padding_duplicate_{i}"
-                        duplicate["index"] = f"dup_{i}"
-                        # Only add if we really need it
-                        if len(mutants) < target_count:
-                            mutants.append(duplicate)
-                
-                except Exception as e:
-                    # Last resort: duplicate first mutant
-                    if i < len(mutants):
-                        duplicate = mutants[0].copy()
-                        duplicate["type"] = f"padding_fallback_{i}"
-                        duplicate["index"] = f"fallback_{i}"
-                        if len(mutants) < target_count:
-                            mutants.append(duplicate)
-    
-    except:
-        pass
-    
-    return mutants
-
-
 def evaluate_postcondition_on_mutant(mutant_code: str, postcondition_code: str,
                                      test_cases: list, params: list) -> bool:
-    """
-    Test if postcondition kills the mutant.
-    Returns True if mutant is killed (postcondition detects it), False otherwise.
-    Uses only a sample of test cases (maximum 100 test cases) for efficiency.
-    """
-    import signal
+    """Test if postcondition kills the mutant."""
+    signal.signal(signal.SIGALRM, lambda s, f: (_ for _ in ()).throw(TimeoutError()))
     
-    # Use only a sample of test cases (max 100) for performance
-    sample_size = min(100, len(test_cases))
-    test_sample = test_cases[:sample_size]
-    
-    def timeout_handler(signum, frame):
-        raise TimeoutError("Mutant evaluation timed out")
-    
-    for test_case in test_sample:
+    for test_case in test_cases[:min(100, len(test_cases))]:
         try:
-            # Set a 1-second timeout for each test case
-            signal.signal(signal.SIGALRM, timeout_handler)
             signal.alarm(1)
+            exec_globals = {}
+            exec(mutant_code, exec_globals)
             
-            try:
-                # Execute mutant function
-                exec_globals = {}
-                exec(mutant_code, exec_globals)
-                
-                # Get mutant function
-                func_name = extract_function_name(mutant_code)
-                mutant_func = exec_globals[func_name]
-                
-                # Run mutant with test case
-                args = test_case["args"]
-                kwargs = test_case.get("kwargs", {})
-                result = mutant_func(*args, **kwargs)
-                
-                # Build evaluation environment
-                eval_env = exec_globals.copy()
-                eval_env["result"] = result
-                
-                # Bind parameters
-                for i, param in enumerate(params):
-                    if i < len(args):
-                        eval_env[param] = args[i]
-                eval_env.update(kwargs)
-                
-                # Execute postcondition
-                exec(postcondition_code, eval_env)
-                
-                signal.alarm(0)  # Cancel timeout
-                # If we reach here, postcondition passed for this test case
-                # Continue to next test case
-                
-            except TimeoutError:
-                signal.alarm(0)
-                # Timeout means mutant is likely problematic, consider it killed
-                return True
+            result = exec_globals[extract_function_name(mutant_code)](*test_case["args"], **test_case.get("kwargs", {}))
             
-        except (AssertionError, Exception):
+            eval_env = exec_globals | {"result": result} | dict(zip(params, test_case["args"])) | test_case.get("kwargs", {})
+            exec(postcondition_code, eval_env)
             signal.alarm(0)
-            # Postcondition failed or error occurred - mutant is killed!
+        except:
+            signal.alarm(0)
             return True
         finally:
-            signal.alarm(0)  # Ensure timeout is cancelled
-    
-    # Postcondition passed for all test cases - mutant not killed
+            signal.alarm(0)
     return False
 
 
 def evaluate_completeness(processed_mbpp: list, generated_postconditions: list,
                          test_cases_dict: dict) -> dict:
     """Evaluate completeness via mutation analysis."""
-    print("\n=== Evaluating Completeness (Mutation Analysis) ===\n")
+    print("\n=== Evaluating Completeness ===\n")
     
     completeness_report = {}
     
@@ -707,7 +355,6 @@ def evaluate_completeness(processed_mbpp: list, generated_postconditions: list,
         
         print(f"Evaluating function {task_id}...")
         
-        # Get test cases
         if task_id not in test_cases_dict:
             print(f"  Warning: No test cases found for function {task_id}")
             continue
@@ -715,9 +362,16 @@ def evaluate_completeness(processed_mbpp: list, generated_postconditions: list,
         test_cases = test_cases_dict[task_id]["test_cases"]
         params = extract_function_params(function_code)
         
-        # Generate mutants
-        print(f"  Generating {NUM_MUTANTS} mutants...")
-        mutants = generate_mutants(function_code, NUM_MUTANTS)
+        print(f"  Generating mutants...", end="", flush=True)
+        signal.signal(signal.SIGALRM, lambda s, f: (_ for _ in ()).throw(TimeoutError()))
+        try:
+            signal.alarm(30)
+            mutants = generate_mutants(function_code, test_cases, NUM_MUTANTS)
+            signal.alarm(0)
+        except TimeoutError:
+            signal.alarm(0)
+            mutants = []
+            print(" timeout!")
         
         if not mutants:
             print(f"  Warning: Could not generate mutants")
@@ -728,9 +382,8 @@ def evaluate_completeness(processed_mbpp: list, generated_postconditions: list,
             }
             continue
         
-        print(f"  Generated {len(mutants)} mutants")
+        print(f" done! Generated {len(mutants)} unique mutants")
         
-        # Evaluate each strategy
         task_results = {}
         for strategy in ["naive", "few_shot", "chain_of_thought"]:
             postcondition_code = postconditions.get(strategy, "")
@@ -739,21 +392,16 @@ def evaluate_completeness(processed_mbpp: list, generated_postconditions: list,
                 task_results[strategy] = 0
                 continue
             
-            # Count killed mutants
             killed = 0
-            for i, mutant in enumerate(mutants):
+            for mutant in mutants:
                 try:
-                    is_killed = evaluate_postcondition_on_mutant(
-                        mutant["code"], postcondition_code, test_cases, params
-                    )
-                    if is_killed:
+                    if evaluate_postcondition_on_mutant(mutant["code"], postcondition_code, 
+                                                        test_cases, params):
                         killed += 1
-                except Exception as e:
-                    # If evaluation fails, consider mutant killed
+                except:
                     killed += 1
             
-            # Calculate kill rate percentage
-            kill_rate = int((killed / len(mutants)) * 100)
+            kill_rate = int((killed / len(mutants)) * 100) if mutants else 0
             task_results[strategy] = kill_rate
             print(f"  {strategy}: {killed}/{len(mutants)} killed ({kill_rate}%)")
         
@@ -764,15 +412,14 @@ def evaluate_completeness(processed_mbpp: list, generated_postconditions: list,
 
 def main():
     """Main execution function."""
-    print("\n=== Completeness Evaluation (Mutation Analysis) ===")
-    print(f"Mutants per function: {NUM_MUTANTS}\n")
+    print("\n=== Completeness Evaluation (Mutmut Inspired Approach) ===")
+    print(f"Target mutants per function: {NUM_MUTANTS}")
+    print("Using standardized mutation operators with duplicate/equivalent filtering\n")
     
-    # Load datasets
     print("Loading datasets...")
     processed_mbpp = load_json(PROCESSED_MBPP_FILE)
     generated_postconditions = load_json(GENERATED_POSTCONDITIONS_FILE)
     
-    # Load test cases
     if not TEST_CASES_FILE.exists():
         raise FileNotFoundError(
             f"Test cases file not found: {TEST_CASES_FILE}\n"
@@ -784,12 +431,10 @@ def main():
     
     print(f"Loaded {len(processed_mbpp)} functions\n")
     
-    # Evaluate completeness
     completeness_report = evaluate_completeness(
         processed_mbpp, generated_postconditions, test_cases_dict
     )
     
-    # Save report
     save_json(OUTPUT_FILE, completeness_report)
     print(f"\n=== Completeness Evaluation Complete ===")
     print(f"Report saved to {OUTPUT_FILE}")
