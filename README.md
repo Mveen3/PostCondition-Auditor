@@ -100,7 +100,7 @@ Postcondition_Auditor/
 - `time`, `random`: Retry logic and rate limiting
 
 **Configuration**:
-- Model: `gemini-1.5-flash` (configurable)
+- Model: `gemini-2.5-flash` (configurable)
 - Temperature: 0.1 (low for deterministic outputs)
 - Max retries: 3 per function
 

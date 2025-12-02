@@ -620,7 +620,7 @@ def evaluate_correctness(generated_postconditions: list, test_cases_dict: dict) 
     """Evaluate correctness of all postconditions."""
     print("\n=== Evaluating Correctness ===\n")
     
-    MAX_TEST_CASES_PER_EVAL = 100  # Limit test cases to prevent excessive runtime
+    MAX_TEST_CASES_PER_EVAL = 1000  # If needed Limit test cases to prevent excessive runtime
     correctness_report = {}
     total_tasks = len(generated_postconditions)
     
