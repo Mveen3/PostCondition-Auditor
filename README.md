@@ -50,7 +50,7 @@ Postcondition_Auditor/
         ├── completeness_report.json  # Mutmut-style mutation testing results
         ├── soundness_report.json     # Soundness evaluation results
         ├── analysis_summary.txt      # Comprehensive text report
-        └── visualizations/           # Generated charts & plots
+        └── dashboard.png             # Comprehensive visualization dashboard
 ```
 
 ---
@@ -243,7 +243,7 @@ Checks if postcondition references any identifier that doesn't exist in:
 
 ### 6. Summary & Visualization (`06_summary_n_visualization.py`)
 
-**Purpose**: Aggregates results, computes metrics, and generates visualizations.
+**Purpose**: Aggregates results, computes metrics, and generates a comprehensive dashboard.
 
 **Metrics Computed**:
 
@@ -256,35 +256,42 @@ Checks if postcondition references any identifier that doesn't exist in:
 - Median kill rate
 - Standard deviation
 - Min/Max kill rates
-- Distribution analysis
+- High/Low performer counts
 
 **Soundness Metrics**:
 - Sound postcondition percentage
 - Hallucination rate
-- Most common hallucination types
+
+**Combined Metrics**:
+- Perfect postconditions (Valid + Strong + Sound)
+- Valid + Sound combinations
+- Valid + Strong combinations
+- Sound + Strong combinations
 
 **Cross-Metric Analysis**:
 - Strategy comparison across all dimensions
-- Correlation between metrics
-- Best/worst performing functions
+- Overall weighted scores (40% Correctness, 40% Completeness, 20% Soundness)
+- Improvements over naive baseline
+- Consistency analysis (Coefficient of Variation)
+- Success stories & challenging functions identification
 
-**Visualizations Generated**:
-1. **Correctness Bar Chart**: Pass rates by strategy
-2. **Completeness Distribution**: Box plots showing kill rate spread
-3. **Soundness Comparison**: Sound vs hallucinated postconditions
-4. **Comprehensive Heatmap**: All metrics across all strategies
-5. **Per-Function Analysis**: Detailed breakdowns for each function
-6. **Strategy Comparison**: Side-by-side radar charts
+**Comprehensive Dashboard** (`dashboard.png`):
+1. **Core Metrics Comparison**: Grouped bar chart showing Correctness, Completeness, Soundness per strategy
+2. **Completeness Strength**: Stacked bar chart of High vs Low performers
+3. **Consistency Analysis**: Coefficient of Variation comparison
+4. **Combined Metrics Heatmap**: Color-coded matrix showing % of functions meeting multiple criteria
+5. **Overall Weighted Score**: Strategy ranking by composite score
+6. **Improvement vs Baseline**: Horizontal bar chart showing Few-Shot and CoT deltas
+7. **Summary Table**: Success stories and challenges count
 
 **Libraries Used**:
-- `matplotlib`: Core plotting library
-- `seaborn`: Statistical visualization and styling
+- `matplotlib`: Core plotting library with GridSpec for dashboard layout
 - `numpy`: Numerical computations
 - `statistics`: Statistical measures (mean, median, stdev)
 
 **Output**: 
 - `src/reports/analysis_summary.txt` (comprehensive text report)
-- `src/reports/visualizations/*.png` (multiple charts)
+- `src/reports/dashboard.png` (comprehensive dashboard)
 
 ---
 
@@ -293,13 +300,13 @@ Checks if postcondition references any identifier that doesn't exist in:
 ### Core Dependencies
 
 | Library | Purpose |
-|---------|---------|
+|---------|---------||
 | `google-generativeai` | Google Gemini LLM API client |
 | `python-dotenv` | Environment variable management |
 | `hypothesis` | Property-based test generation |
 | Custom Mutmut-style | Standardized mutation operators (ROR, AOR, LOR, CRP, UOI, RSM) |
-| `matplotlib` | Data visualization |
-| `seaborn` | Statistical plots |
+| `matplotlib` | Data visualization & dashboard generation |
+| `numpy` | Numerical computations |
 
 ### Python Standard Library
 
@@ -395,15 +402,19 @@ After running the complete pipeline, you'll have:
 - `src/reports/analysis_summary.txt`: Comprehensive text report with:
   - Overall metrics per strategy
   - Statistical analysis (mean, median, std dev)
-  - Best/worst performing functions
-  - Detailed insights and recommendations
+  - Strategy rankings and comparisons
+  - Success stories and challenging functions
+  - Consistency analysis
 
-#### Visualizations
-- `correctness_comparison.png`: Bar chart of pass rates
-- `completeness_boxplot.png`: Distribution of kill rates
-- `soundness_comparison.png`: Sound vs hallucinated counts
-- `strategy_heatmap.png`: Multi-metric comparison
-- Additional charts for detailed analysis
+#### Dashboard
+- `src/reports/dashboard.png`: Single comprehensive visualization containing:
+  - Core metrics comparison (Correctness, Completeness, Soundness)
+  - High vs Low performer analysis
+  - Consistency analysis (Coefficient of Variation)
+  - Combined metrics heatmap
+  - Overall weighted scores
+  - Improvement over baseline chart
+  - Success stories & challenges summary table
 
 ### Expected Results Structure
 

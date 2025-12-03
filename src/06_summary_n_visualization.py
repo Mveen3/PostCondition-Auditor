@@ -17,7 +17,7 @@ import statistics
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import seaborn as sns
+import matplotlib.gridspec as gridspec
 import numpy as np
 
 
@@ -28,18 +28,14 @@ SOUNDNESS_REPORT = "src/reports/soundness_report.json"
 
 # Outputs
 SUMMARY_FILE = "src/reports/analysis_summary.txt"
-OUTPUT_DIR = "src/reports/visualizations"
+DASHBOARD_FILE = "src/reports/dashboard.png"
 
 # Visualization config
-COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1']  # Red, Teal, Blue
 STRATEGY_NAMES = {
     'naive': 'Naive',
-    'few_shot': 'Few-Shot',
-    'chain_of_thought': 'Chain-of-Thought'
+    'few_shot': 'Few Shot',
+    'chain_of_thought': 'Chain of Thought'
 }
-
-# Ensure output directory exists
-Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
 
 
 def load_reports() -> Tuple[Dict, Dict, Dict]:
@@ -273,7 +269,7 @@ def calculate_strategy_comparison(correctness_metrics: Dict, completeness_metric
 def identify_challenging_functions(correctness_data: Dict, completeness_data: Dict,
                                    soundness_data: Dict) -> Dict:
     """
-    Identify challenging functions (from generate_insights.py).
+    Identify challenging functions.
     """
     challenging = {
         'no_strategy_correct': [],
@@ -319,7 +315,7 @@ def identify_challenging_functions(correctness_data: Dict, completeness_data: Di
 def identify_success_stories(correctness_data: Dict, completeness_data: Dict,
                              soundness_data: Dict) -> Dict:
     """
-    Identify success stories (from generate_insights.py).
+    Identify success stories.
     """
     success = {
         'all_strategies_correct': [],
@@ -359,7 +355,7 @@ def identify_success_stories(correctness_data: Dict, completeness_data: Dict,
 def calculate_consistency_metrics(correctness_data: Dict, completeness_data: Dict,
                                   soundness_data: Dict) -> Dict:
     """
-    Analyze consistency of each strategy (from generate_insights.py).
+    Analyze consistency of each strategy.
     """
     strategies = ['naive', 'few_shot', 'chain_of_thought']
     consistency = {}
@@ -398,7 +394,7 @@ def calculate_consistency_metrics(correctness_data: Dict, completeness_data: Dic
 
 def generate_summary_report(all_metrics: Dict) -> str:
     """
-    Generate a human-readable summary report (text only).
+    Generate a human-readable summary report.
     """
     lines = []
     lines.append("=" * 80)
@@ -529,595 +525,237 @@ def generate_summary_report(all_metrics: Dict) -> str:
     return "\n".join(lines)
 
 
-# Visualization Helper Functions
-def set_style():
-    """Set consistent style for all plots."""
-    sns.set_style("whitegrid")
-    plt.rcParams['figure.figsize'] = (12, 8)
-    plt.rcParams['font.size'] = 11
-    plt.rcParams['axes.labelsize'] = 12
-    plt.rcParams['axes.titlesize'] = 14
-    plt.rcParams['xtick.labelsize'] = 10
-    plt.rcParams['ytick.labelsize'] = 10
-    plt.rcParams['legend.fontsize'] = 10
-
-
-def plot_correctness_comparison(data):
-    strategies = ['naive', 'few_shot', 'chain_of_thought']
-    correctness = data['correctness_metrics']
-
-    percentages = [correctness[s]['validity_percentage'] for s in strategies]
-    labels = [STRATEGY_NAMES[s] for s in strategies]
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    bars = ax.bar(labels, percentages, color=COLORS, alpha=0.8, edgecolor='black', linewidth=1.5)
-
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width() / 2., height,
-                f'{height:.1f}%',
-                ha='center', va='bottom', fontsize=12, fontweight='bold')
-
-    ax.set_ylabel('Validity Percentage (%)', fontsize=12, fontweight='bold')
-    ax.set_title('Correctness (Validity) - Postconditions Passing 1000 Property-Based Tests',
-                 fontsize=14, fontweight='bold', pad=20)
-    ax.set_ylim(0, 100)
-    ax.axhline(y=80, color='green', linestyle='--', alpha=0.5, label='80% Threshold')
-    ax.legend()
-
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/correctness_comparison.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Correctness comparison chart saved")
-
-
-def plot_completeness_comparison(data):
-    strategies = ['naive', 'few_shot', 'chain_of_thought']
-    completeness = data['completeness_metrics']
-
-    avg_scores = [completeness[s]['average_mutation_kill_score'] for s in strategies]
-    median_scores = [completeness[s]['median_mutation_kill_score'] for s in strategies]
-    labels = [STRATEGY_NAMES[s] for s in strategies]
-
-    x = np.arange(len(labels))
-    width = 0.35
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    bars1 = ax.bar(x - width / 2, avg_scores, width, label='Average',
-                   color=COLORS[0], alpha=0.8, edgecolor='black', linewidth=1.5)
-    bars2 = ax.bar(x + width / 2, median_scores, width, label='Median',
-                   color=COLORS[1], alpha=0.8, edgecolor='black', linewidth=1.5)
-
-    for bars in [bars1, bars2]:
-        for bar in bars:
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width() / 2., height,
-                    f'{height:.1f}%',
-                    ha='center', va='bottom', fontsize=10, fontweight='bold')
-
-    ax.set_ylabel('Mutation Kill Score (%)', fontsize=12, fontweight='bold')
-    ax.set_title('Completeness (Strength) - Mutation Analysis Performance',
-                 fontsize=14, fontweight='bold', pad=20)
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    ax.set_ylim(0, 110)
-    ax.axhline(y=80, color='green', linestyle='--', alpha=0.5, label='80% Threshold')
-    ax.legend()
-
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/completeness_comparison.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Completeness comparison chart saved")
-
-
-def plot_soundness_comparison(data):
-    strategies = ['naive', 'few_shot', 'chain_of_thought']
-    soundness = data['soundness_metrics']
-
-    sound_pct = [soundness[s]['sound_percentage'] for s in strategies]
-    halluc_pct = [soundness[s]['hallucination_rate'] for s in strategies]
-    labels = [STRATEGY_NAMES[s] for s in strategies]
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-
-    # Sound
-    bars1 = ax1.bar(labels, sound_pct, color=COLORS, alpha=0.8, edgecolor='black', linewidth=1.5)
-    for bar in bars1:
-        height = bar.get_height()
-        ax1.text(bar.get_x() + bar.get_width() / 2., height,
-                 f'{height:.1f}%',
-                 ha='center', va='bottom', fontsize=12, fontweight='bold')
-
-    ax1.set_ylabel('Sound Percentage (%)', fontsize=12, fontweight='bold')
-    ax1.set_title('Sound Postconditions\n(No Hallucinated Variables)',
-                  fontsize=13, fontweight='bold')
-    ax1.set_ylim(0, 105)
-    ax1.axhline(y=95, color='green', linestyle='--', alpha=0.5, label='95% Threshold')
-    ax1.legend()
-
-    # Hallucination
-    bars2 = ax2.bar(labels, halluc_pct, color=['#FF6B6B', '#FF6B6B', '#FF6B6B'],
-                    alpha=0.6, edgecolor='black', linewidth=1.5)
-    for bar in bars2:
-        height = bar.get_height()
-        ax2.text(bar.get_x() + bar.get_width() / 2., height,
-                 f'{height:.1f}%',
-                 ha='center', va='bottom', fontsize=12, fontweight='bold')
-
-    ax2.set_ylabel('Hallucination Rate (%)', fontsize=12, fontweight='bold')
-    ax2.set_title('Hallucination Rates\n(Lower is Better)',
-                  fontsize=13, fontweight='bold')
-    ax2.set_ylim(0, max(halluc_pct) * 1.5 if max(halluc_pct) > 0 else 10)
-
-    plt.suptitle('Soundness (Reliability) - Hallucination Audit Results',
-                 fontsize=14, fontweight='bold', y=1.02)
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/soundness_comparison.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Soundness comparison chart saved")
-
-
-def plot_mutation_score_distribution(data):
-    strategies = ['naive', 'few_shot', 'chain_of_thought']
-    completeness = data['completeness_metrics']
-
-    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
-
-    for idx, strategy in enumerate(strategies):
-        score_dist = completeness[strategy]['score_distribution']
-        ranges = list(score_dist.keys())
-        counts = list(score_dist.values())
-
-        axes[idx].bar(ranges, counts, color=COLORS[idx], alpha=0.8,
-                      edgecolor='black', linewidth=1.5)
-        axes[idx].set_title(STRATEGY_NAMES[strategy], fontsize=13, fontweight='bold')
-        axes[idx].set_xlabel('Mutation Kill Score Range', fontsize=11)
-        axes[idx].set_ylabel('Number of Functions', fontsize=11)
-        axes[idx].tick_params(axis='x', rotation=45)
-
-        for i, (r, c) in enumerate(zip(ranges, counts)):
-            axes[idx].text(i, c, str(c), ha='center', va='bottom', fontweight='bold')
-
-    plt.suptitle('Distribution of Mutation Kill Scores by Strategy',
-                 fontsize=14, fontweight='bold', y=1.02)
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/mutation_score_distribution.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Mutation score distribution chart saved")
-
-
-def plot_combined_metrics_heatmap(data):
-    strategies = ['naive', 'few_shot', 'chain_of_thought']
-    combined = data['combined_metrics']
-
-    metrics_names = [
-        'Perfect (All 3)',
-        'Valid + Sound',
-        'Valid + Strong',
-        'Sound + Strong'
-    ]
-
-    matrix = []
-    for strategy in strategies:
-        row = [
-            combined[strategy]['perfect_postconditions_percentage'],
-            combined[strategy]['valid_and_sound_percentage'],
-            combined[strategy]['valid_and_strong_percentage'],
-            combined[strategy]['sound_and_strong_percentage']
-        ]
-        matrix.append(row)
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    im = ax.imshow(matrix, cmap='YlGnBu', aspect='auto', vmin=0, vmax=100)
-
-    ax.set_xticks(np.arange(len(metrics_names)))
-    ax.set_yticks(np.arange(len(strategies)))
-    ax.set_xticklabels(metrics_names)
-    ax.set_yticklabels([STRATEGY_NAMES[s] for s in strategies])
-
-    plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
-
-    for i in range(len(strategies)):
-        for j in range(len(metrics_names)):
-            ax.text(j, i, f'{matrix[i][j]:.1f}%',
-                    ha="center", va="center", color="black", fontweight='bold', fontsize=11)
-
-    ax.set_title('Combined Metrics - Percentage of Functions Meeting Multiple Criteria',
-                 fontsize=14, fontweight='bold', pad=20)
-
-    cbar = plt.colorbar(im, ax=ax)
-    cbar.set_label('Percentage (%)', rotation=270, labelpad=20, fontweight='bold')
-
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/combined_metrics_heatmap.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Combined metrics heatmap saved")
-
-
-def plot_overall_strategy_comparison(data):
-    strategies = ['naive', 'few_shot', 'chain_of_thought']
-
-    categories = ['Correctness\n(Validity)', 'Completeness\n(Strength)', 'Soundness\n(Reliability)']
-    N = len(categories)
-
-    angles = [n / float(N) * 2 * np.pi for n in range(N)]
-    angles += angles[:1]
-
-    fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(projection='polar'))
-
-    for idx, strategy in enumerate(strategies):
-        values = [
-            data['correctness_metrics'][strategy]['validity_percentage'],
-            data['completeness_metrics'][strategy]['average_mutation_kill_score'],
-            data['soundness_metrics'][strategy]['sound_percentage']
-        ]
-        values += values[:1]
-
-        ax.plot(angles, values, 'o-', linewidth=2.5, label=STRATEGY_NAMES[strategy],
-                color=COLORS[idx], markersize=8)
-        ax.fill(angles, values, alpha=0.15, color=COLORS[idx])
-
-    ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(categories, fontsize=12, fontweight='bold')
-    ax.set_ylim(0, 100)
-    ax.set_yticks([20, 40, 60, 80, 100])
-    ax.set_yticklabels(['20%', '40%', '60%', '80%', '100%'], fontsize=10)
-    ax.grid(True, linestyle='--', alpha=0.7)
-
-    plt.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), fontsize=12, framealpha=0.9)
-    plt.title('Strategy Comparison Across Three Evaluation Dimensions\n(Tripartite Framework)',
-              fontsize=14, fontweight='bold', pad=30)
-
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/overall_strategy_radar.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Overall strategy radar chart saved")
-
-
-def plot_success_and_challenge_analysis(data):
-    success = data['success_stories']
-    challenges = data['challenging_functions']
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-
-    # Success stories
-    success_categories = [
-        'All Correct',
-        'All Strong\n(≥80%)',
-        'All Sound',
-        'Perfect\n(All 3)'
-    ]
-    success_counts = [
-        success['all_strategies_correct_count'],
-        success['all_strategies_strong_count'],
-        success['all_strategies_sound_count'],
-        success['perfect_across_board_count']
-    ]
-
-    bars1 = ax1.bar(success_categories, success_counts,
-                    color=['#2ecc71', '#27ae60', '#16a085', '#0a6847'],
-                    alpha=0.8, edgecolor='black', linewidth=1.5)
-
-    for bar in bars1:
-        height = bar.get_height()
-        ax1.text(bar.get_x() + bar.get_width() / 2., height,
-                 f'{int(height)}',
-                 ha='center', va='bottom', fontsize=12, fontweight='bold')
-
-    ax1.set_ylabel('Number of Functions', fontsize=12, fontweight='bold')
-    ax1.set_title('Success Stories\n(Functions Where All Strategies Excel)',
-                  fontsize=13, fontweight='bold')
-    ax1.tick_params(axis='x', rotation=15)
-
-    # Challenging functions
-    challenge_categories = [
-        'No Strategy\nCorrect',
-        'All Weak\n(<60%)',
-        'Multiple\nHallucinations',
-        'Universally\nDifficult'
-    ]
-    challenge_counts = [
-        challenges['no_strategy_correct_count'],
-        challenges['all_strategies_weak_count'],
-        challenges['multiple_hallucinations_count'],
-        challenges['universally_difficult_count']
-    ]
-
-    bars2 = ax2.bar(challenge_categories, challenge_counts,
-                    color=['#e74c3c', '#c0392b', '#d35400', '#8b0000'],
-                    alpha=0.8, edgecolor='black', linewidth=1.5)
-
-    for bar in bars2:
-        height = bar.get_height()
-        ax2.text(bar.get_x() + bar.get_width() / 2., height,
-                 f'{int(height)}',
-                 ha='center', va='bottom', fontsize=12, fontweight='bold')
-
-    ax2.set_ylabel('Number of Functions', fontsize=12, fontweight='bold')
-    ax2.set_title('Challenging Functions\n(Functions Where All Strategies Struggle)',
-                  fontsize=13, fontweight='bold')
-    ax2.tick_params(axis='x', rotation=15)
-
-    plt.suptitle('Success vs Challenge Analysis',
-                 fontsize=14, fontweight='bold', y=1.02)
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/success_challenge_analysis.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Success and challenge analysis chart saved")
-
-
-def plot_improvements_over_baseline(data):
-    comparison = data['strategy_comparison']
-    improvements = comparison['improvements_over_baseline']
-
-    strategies = ['few_shot', 'chain_of_thought']
-    categories = ['Correctness', 'Completeness', 'Soundness', 'Overall']
-
-    few_shot_vals = [
-        improvements['few_shot']['correctness_improvement'],
-        improvements['few_shot']['completeness_improvement'],
-        improvements['few_shot']['soundness_improvement'],
-        improvements['few_shot']['overall_improvement']
-    ]
-
-    cot_vals = [
-        improvements['chain_of_thought']['correctness_improvement'],
-        improvements['chain_of_thought']['completeness_improvement'],
-        improvements['chain_of_thought']['soundness_improvement'],
-        improvements['chain_of_thought']['overall_improvement']
-    ]
-
-    x = np.arange(len(categories))
-    width = 0.35
-
-    fig, ax = plt.subplots(figsize=(12, 7))
-    bars1 = ax.bar(x - width / 2, few_shot_vals, width, label='Few-Shot',
-                   color=COLORS[0], alpha=0.8, edgecolor='black', linewidth=1.5)
-    bars2 = ax.bar(x + width / 2, cot_vals, width, label='Chain-of-Thought',
-                   color=COLORS[1], alpha=0.8, edgecolor='black', linewidth=1.5)
-
-    for bars in [bars1, bars2]:
-        for bar in bars:
-            height = bar.get_height()
-            label = f'{height:+.2f}'
-            ax.text(bar.get_x() + bar.get_width() / 2., height,
-                    label,
-                    ha='center', va='bottom' if height >= 0 else 'top',
-                    fontsize=11, fontweight='bold')
-
-    ax.set_ylabel('Improvement (%)', fontsize=12, fontweight='bold')
-    ax.set_title('Improvements Over Naive Baseline\n(Positive = Better Performance)',
-                 fontsize=14, fontweight='bold', pad=20)
-    ax.set_xticks(x)
-    ax.set_xticklabels(categories)
-    ax.axhline(y=0, color='black', linestyle='-', linewidth=1)
-    ax.legend(fontsize=12)
-    ax.grid(axis='y', alpha=0.3)
-
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/improvements_over_baseline.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Improvements over baseline chart saved")
-
-
-def plot_consistency_analysis(data):
-    strategies = ['naive', 'few_shot', 'chain_of_thought']
-    consistency = data['consistency_metrics']
-
-    labels = [STRATEGY_NAMES[s] for s in strategies]
-    coef_var = [consistency[s]['completeness_coefficient_of_variation'] for s in strategies]
-    reliability = [consistency[s]['reliability_score'] * 100 for s in strategies]
-
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-
-    # Coefficient of Variation
-    bars1 = ax1.bar(labels, coef_var, color=COLORS, alpha=0.8,
-                    edgecolor='black', linewidth=1.5)
-    for bar in bars1:
-        height = bar.get_height()
-        ax1.text(bar.get_x() + bar.get_width() / 2., height,
-                 f'{height:.2f}%',
-                 ha='center', va='bottom', fontsize=11, fontweight='bold')
-
-    ax1.set_ylabel('Coefficient of Variation (%)', fontsize=12, fontweight='bold')
-    ax1.set_title('Consistency Metric\n(Lower = More Consistent)',
-                  fontsize=13, fontweight='bold')
-    ax1.set_ylim(0, max(coef_var) * 1.2 if max(coef_var) > 0 else 1)
-
-    # Reliability Score
-    bars2 = ax2.bar(labels, reliability, color=COLORS, alpha=0.8,
-                    edgecolor='black', linewidth=1.5)
-    for bar in bars2:
-        height = bar.get_height()
-        ax2.text(bar.get_x() + bar.get_width() / 2., height,
-                 f'{height:.2f}',
-                 ha='center', va='bottom', fontsize=11, fontweight='bold')
-
-    ax2.set_ylabel('Reliability Score', fontsize=12, fontweight='bold')
-    ax2.set_title('Overall Reliability\n(Higher = More Reliable)',
-                  fontsize=13, fontweight='bold')
-    ax2.set_ylim(0, 100)
-
-    plt.suptitle('Consistency and Reliability Analysis',
-                 fontsize=14, fontweight='bold', y=1.02)
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/consistency_analysis.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Consistency analysis chart saved")
-
-
-def plot_overall_scores_ranking(data):
-    comparison = data['strategy_comparison']
-    strategies_ordered = comparison['overall_ranking']
-
-    scores = [comparison['overall_scores'][s] for s in strategies_ordered]
-    labels = [STRATEGY_NAMES[s] for s in strategies_ordered]
-    colors_ordered = [COLORS[['naive', 'few_shot', 'chain_of_thought'].index(s)]
-                      for s in strategies_ordered]
-
-    fig, ax = plt.subplots(figsize=(10, 7))
-    bars = ax.barh(labels, scores, color=colors_ordered, alpha=0.8,
-                   edgecolor='black', linewidth=2)
-
-    for i, (bar, score) in enumerate(zip(bars, scores)):
-        width = bar.get_width()
-        rank = i + 1
-        label = f'#{rank} - {score:.2f}'
-        ax.text(width + 1, bar.get_y() + bar.get_height() / 2.,
-                label,
-                ha='left', va='center', fontsize=13, fontweight='bold')
-
-    ax.set_xlabel('Overall Score (Weighted Average)', fontsize=12, fontweight='bold')
-    ax.set_title('Overall Strategy Rankings\n(40% Correctness + 40% Completeness + 20% Soundness)',
-                 fontsize=14, fontweight='bold', pad=20)
-    ax.set_xlim(0, 100)
-    ax.grid(axis='x', alpha=0.3)
-
-    best = comparison['best_overall_strategy']
-    ax.text(0.95, 0.95, f'Best Overall:\n{STRATEGY_NAMES[best]}',
-            transform=ax.transAxes,
-            fontsize=13, fontweight='bold',
-            bbox=dict(boxstyle='round', facecolor='gold', alpha=0.8),
-            ha='right', va='top')
-
-    plt.tight_layout()
-    plt.savefig(f'{OUTPUT_DIR}/overall_scores_ranking.png', dpi=300, bbox_inches='tight')
-    plt.close()
-    print("✓ Overall scores ranking chart saved")
-
-
-def create_summary_dashboard(data):
-    fig = plt.figure(figsize=(16, 12))
-    gs = fig.add_gridspec(3, 3, hspace=0.3, wspace=0.3)
-
+# COMPREHENSIVE DASHBOARD VISUALIZATION
+
+def create_comprehensive_dashboard(data: Dict) -> None:
+    """
+    Generates comprehensive dashboard with all evaluation metrics.
+    """
     strategies = ['naive', 'few_shot', 'chain_of_thought']
     strategy_labels = [STRATEGY_NAMES[s] for s in strategies]
-
-    # 1. Correctness
-    ax1 = fig.add_subplot(gs[0, 0])
-    correctness = [data['correctness_metrics'][s]['validity_percentage'] for s in strategies]
-    ax1.bar(strategy_labels, correctness, color=COLORS, alpha=0.8, edgecolor='black')
-    ax1.set_title('Correctness (Validity %)', fontweight='bold')
-    ax1.set_ylim(0, 100)
-    for i, v in enumerate(correctness):
-        ax1.text(i, v, f'{v:.1f}%', ha='center', va='bottom', fontweight='bold')
-
-    # 2. Completeness
-    ax2 = fig.add_subplot(gs[0, 1])
-    completeness = [data['completeness_metrics'][s]['average_mutation_kill_score'] for s in strategies]
-    ax2.bar(strategy_labels, completeness, color=COLORS, alpha=0.8, edgecolor='black')
-    ax2.set_title('Completeness (Avg Mutation %)', fontweight='bold')
-    ax2.set_ylim(0, 100)
-    for i, v in enumerate(completeness):
-        ax2.text(i, v, f'{v:.1f}%', ha='center', va='bottom', fontweight='bold')
-
-    # 3. Soundness
-    ax3 = fig.add_subplot(gs[0, 2])
-    soundness = [data['soundness_metrics'][s]['sound_percentage'] for s in strategies]
-    ax3.bar(strategy_labels, soundness, color=COLORS, alpha=0.8, edgecolor='black')
-    ax3.set_title('Soundness (No Hallucination %)', fontweight='bold')
-    ax3.set_ylim(0, 100)
-    for i, v in enumerate(soundness):
-        ax3.text(i, v, f'{v:.1f}%', ha='center', va='bottom', fontweight='bold')
-
-    # 4. Perfect Postconditions
-    ax4 = fig.add_subplot(gs[1, 0])
-    perfect = [data['combined_metrics'][s]['perfect_postconditions_percentage'] for s in strategies]
-    ax4.bar(strategy_labels, perfect, color=COLORS, alpha=0.8, edgecolor='black')
-    ax4.set_title('Perfect Postconditions %', fontweight='bold')
-    ax4.set_ylim(0, 100)
-    for i, v in enumerate(perfect):
-        ax4.text(i, v, f'{v:.1f}%', ha='center', va='bottom', fontweight='bold')
-
-    # 5. High Performers
-    ax5 = fig.add_subplot(gs[1, 1])
-    high_perf = [data['completeness_metrics'][s]['high_performers_percentage'] for s in strategies]
-    ax5.bar(strategy_labels, high_perf, color=COLORS, alpha=0.8, edgecolor='black')
-    ax5.set_title('High Performers (≥80%) %', fontweight='bold')
-    ax5.set_ylim(0, 100)
-    for i, v in enumerate(high_perf):
-        ax5.text(i, v, f'{v:.1f}%', ha='center', va='bottom', fontweight='bold')
-
-    # 6. Overall Score
-    ax6 = fig.add_subplot(gs[1, 2])
-    overall = [data['strategy_comparison']['overall_scores'][s] for s in strategies]
-    ax6.bar(strategy_labels, overall, color=COLORS, alpha=0.8, edgecolor='black')
-    ax6.set_title('Overall Weighted Score', fontweight='bold')
-    ax6.set_ylim(0, 100)
-    for i, v in enumerate(overall):
-        ax6.text(i, v, f'{v:.2f}', ha='center', va='bottom', fontweight='bold')
-
-    # 7. Success Stories
-    ax7 = fig.add_subplot(gs[2, 0])
+    
+    # 1. DATA EXTRACTION FROM COMPUTED METRICS
+        
+    # COLORS FOR CHART 1 (Core Metrics)
+    metric_colors = ['#FF4D4D', '#33B5E5', '#FFA500']  # Red, Sky Blue, Orange
+    
+    # Strategy colors for other charts
+    strategy_colors_dark = ['#CC4444', '#008080', '#CC9900']
+    
+    bar_width = 0.25
+    
+    # Metric 1: Core Percentages
+    correctness_pcts = [data['correctness_metrics'][s]['validity_percentage'] for s in strategies]
+    completeness_pcts = [data['completeness_metrics'][s]['average_mutation_kill_score'] for s in strategies]
+    soundness_pcts = [data['soundness_metrics'][s]['sound_percentage'] for s in strategies]
+    
+    metrics_core = {
+        'Correctness (% of Postconditions Passing All 1000 Test Cases)': correctness_pcts,
+        'Completeness (Avg % of Mutants Killed by Postconditions out of 5 Mutants)': completeness_pcts,
+        'Soundness (% of Postconditions with No Hallucination)': soundness_pcts
+    }
+    
+    # Metric 2: High/Low Performers
+    comp_high = [data['completeness_metrics'][s]['high_performers_count'] for s in strategies]
+    comp_low = [data['completeness_metrics'][s]['low_performers_count'] for s in strategies]
+    
+    # Metric 3: Combined Analysis for HEATMAP
+    combined_keys = ['Perfect (All 3)', 'Valid + Sound', 'Valid + Strong', 'Sound + Strong']
+    combined_data_raw = {
+        'Perfect (All 3)': [data['combined_metrics'][s]['perfect_postconditions_count'] for s in strategies],
+        'Valid + Sound': [data['combined_metrics'][s]['valid_and_sound_count'] for s in strategies],
+        'Valid + Strong': [data['combined_metrics'][s]['valid_and_strong_count'] for s in strategies],
+        'Sound + Strong': [data['combined_metrics'][s]['sound_and_strong_count'] for s in strategies]
+    }
+    
+    total_functions = data['correctness_metrics']['naive']['total_postconditions']
+    
+    # Metric 4: Overall Scores
+    overall_scores = [data['strategy_comparison']['overall_scores'][s] for s in strategies]
+    
+    # Metric 5: Improvements
+    improvements = {
+        'Correctness': [0, 
+                        data['strategy_comparison']['improvements_over_baseline']['few_shot']['correctness_improvement'],
+                        data['strategy_comparison']['improvements_over_baseline']['chain_of_thought']['correctness_improvement']],
+        'Completeness': [0,
+                         data['strategy_comparison']['improvements_over_baseline']['few_shot']['completeness_improvement'],
+                         data['strategy_comparison']['improvements_over_baseline']['chain_of_thought']['completeness_improvement']],
+        'Soundness': [0,
+                      data['strategy_comparison']['improvements_over_baseline']['few_shot']['soundness_improvement'],
+                      data['strategy_comparison']['improvements_over_baseline']['chain_of_thought']['soundness_improvement']],
+        'Overall Score': [0,
+                          data['strategy_comparison']['improvements_over_baseline']['few_shot']['overall_improvement'],
+                          data['strategy_comparison']['improvements_over_baseline']['chain_of_thought']['overall_improvement']]
+    }
+    
+    # Metric 6: Consistency
+    consistency_cv = [data['consistency_metrics'][s]['completeness_coefficient_of_variation'] for s in strategies]
+    
+    # Metric 7: Summary Table
     success = data['success_stories']
-    success_counts = [
-        success['perfect_across_board_count'],
-        success['all_strategies_correct_count'],
-        success['all_strategies_strong_count'],
-        success['all_strategies_sound_count']
-    ]
-    success_labels = ['Perfect\nAll 3', 'All\nCorrect', 'All\nStrong', 'All\nSound']
-    ax7.bar(success_labels, success_counts,
-            color=['#2ecc71', '#27ae60', '#16a085', '#0a6847'],
-            alpha=0.8, edgecolor='black')
-    ax7.set_title('Success Stories (Count)', fontweight='bold')
-    ax7.tick_params(axis='x', labelsize=9)
-    for i, v in enumerate(success_counts):
-        ax7.text(i, v, str(v), ha='center', va='bottom', fontweight='bold')
-
-    # 8. Challenging Functions
-    ax8 = fig.add_subplot(gs[2, 1])
     challenges = data['challenging_functions']
-    challenge_counts = [
-        challenges['no_strategy_correct_count'],
-        challenges['all_strategies_weak_count'],
-        challenges['multiple_hallucinations_count'],
-        challenges['universally_difficult_count']
+    summary_counts = [
+        ("Functions where all strategies correct", str(success['all_strategies_correct_count'])),
+        ("Functions where all strategies strong", str(success['all_strategies_strong_count'])),
+        ("Functions where all strategies sound", str(success['all_strategies_sound_count'])),
+        ("Functions perfect across all dimensions", str(success['perfect_across_board_count'])),
+        ("Functions where no strategy is correct", str(challenges['no_strategy_correct_count'])),
+        ("Functions where all strategies weak", str(challenges['all_strategies_weak_count'])),
+        ("Functions with multiple hallucinations", str(challenges['multiple_hallucinations_count']))
     ]
-    challenge_labels = ['No\nCorrect', 'All\nWeak', 'Multi\nHalluc', 'Univ.\nDiff']
-    ax8.bar(challenge_labels, challenge_counts,
-            color=['#e74c3c', '#c0392b', '#d35400', '#8b0000'],
-            alpha=0.8, edgecolor='black')
-    ax8.set_title('Challenging Functions (Count)', fontweight='bold')
-    ax8.tick_params(axis='x', labelsize=9)
-    for i, v in enumerate(challenge_counts):
-        ax8.text(i, v, str(v), ha='center', va='bottom', fontweight='bold')
-
-    # 9. Key statistics text
-    ax9 = fig.add_subplot(gs[2, 2])
-    ax9.axis('off')
-
-    best_strategy = data['strategy_comparison']['best_overall_strategy']
-    total_funcs = data['correctness_metrics']['naive']['total_postconditions']
-
-    stats_text = f"""
-KEY STATISTICS
-
-Total Functions: {total_funcs}
-
-Best Overall Strategy:
-  {STRATEGY_NAMES[best_strategy]}
-
-Top Correctness:
-  {STRATEGY_NAMES[data['strategy_comparison']['correctness_ranking'][0]]}
-
-Top Completeness:
-  {STRATEGY_NAMES[data['strategy_comparison']['completeness_ranking'][0]]}
-
-Top Soundness:
-  {STRATEGY_NAMES[data['strategy_comparison']['soundness_ranking'][0]]}
-"""
-
-    ax9.text(0.1, 0.5, stats_text, fontsize=11, fontweight='bold',
-             verticalalignment='center', family='monospace',
-             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-
-    plt.suptitle('Postcondition Evaluation Dashboard - Tripartite Framework Summary',
-                 fontsize=16, fontweight='bold', y=0.98)
-
-    plt.savefig(f'{OUTPUT_DIR}/comprehensive_dashboard.png', dpi=300, bbox_inches='tight')
+    
+    # 2. PLOTTING SETUP
+    
+    plt.style.use('default')
+    plt.rcParams['figure.facecolor'] = 'white'
+    plt.rcParams['axes.facecolor'] = 'white'
+    plt.rcParams['axes.edgecolor'] = 'black'
+    plt.rcParams['axes.labelcolor'] = 'black'
+    plt.rcParams['xtick.color'] = 'black'
+    plt.rcParams['ytick.color'] = 'black'
+    plt.rcParams['text.color'] = 'black'
+    
+    fig = plt.figure(figsize=(20, 20), facecolor='white')
+    
+    fig.suptitle('COMPREHENSIVE POSTCONDITION EVALUATION ANALYSIS\nTripartite Framework: Correctness, Completeness, Soundness', 
+                 fontsize=26, fontweight='bold', color='#1a1a2e', y=1)
+    
+    # Grid Layout
+    gs = gridspec.GridSpec(5, 2, height_ratios=[0.8, 0.8, 0.9, 0.8, 0.7], hspace=0.55, wspace=0.25)
+    
+    # CHART 1: The Big Three (Core Metrics)
+    ax1 = fig.add_subplot(gs[0, :])
+    x = np.arange(len(strategy_labels))
+    metric_keys = list(metrics_core.keys())
+    offsets = [-bar_width, 0, bar_width]
+    
+    for i, key in enumerate(metric_keys):
+        bars = ax1.bar(x + offsets[i], metrics_core[key], width=bar_width, 
+                       label=key, color=metric_colors[i], edgecolor='black')
+        for bar in bars:
+            height = bar.get_height()
+            ax1.text(bar.get_x() + bar.get_width()/2., height + 1, f'{height}%', 
+                     ha='center', va='bottom', fontsize=12, fontweight='bold', color='#1a1a2e')
+    
+    ax1.legend(loc='upper left', fontsize=9, framealpha=0.9, facecolor='white', edgecolor='gray')
+    ax1.set_title('CORE METRICS COMPARISON (Validity, Strength, Reliability)', fontsize=18, color='#006666', pad=15)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(strategy_labels, fontsize=14)
+    ax1.set_ylim(80, 110)
+    ax1.set_ylabel('Percentage (%)', fontsize=12)
+    ax1.grid(axis='y', alpha=0.1, linestyle='--')
+    
+    # CHART 2: Completeness Deep Dive
+    ax2 = fig.add_subplot(gs[1, 0])
+    ax2.bar(strategy_labels, comp_high, width=0.4, label='High Performers (≥80% ie 4 or More Mutants Killed out of 5 Mutants)', color='#99FF99', edgecolor='black')
+    ax2.bar(strategy_labels, comp_low, width=0.4, bottom=comp_high, label='Low Performers (≤40% ie 2 or Fewer Mutants Killed out of 5 Mutants)', color='#FF4D4D', edgecolor='black')
+    
+    for i, v in enumerate(comp_high):
+        ax2.text(i, v/2, str(v), ha='center', color='black', fontweight='bold', fontsize=12)
+    for i, v in enumerate(comp_low):
+        if v > 0: 
+            ax2.text(i, v + comp_high[i] + 1, str(v), ha='center', color='black', fontweight='bold', fontsize=12)
+    
+    ax2.set_title('COMPLETENESS STRENGTH\n(High vs Low Performers)', fontsize=16, color='#006666', pad=10)
+    ax2.legend(loc='upper center', framealpha=0.9, facecolor='white', edgecolor='gray')
+    ax2.set_ylabel('Number of Postconditions', fontsize=12)
+    
+    # CHART 3: Consistency
+    ax3 = fig.add_subplot(gs[1, 1])
+    bars = ax3.bar(strategy_labels, consistency_cv, color=strategy_colors_dark, width=0.5, edgecolor='black')
+    ax3.set_title('CONSISTENCY ANALYSIS\n(Coefficient of Variation of Mutation Kill Rates: 5 Mutants/Function -> Lower = More Reliable)', fontsize=16, color='#006666', pad=10)
+    for bar in bars:
+        ax3.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.5, f'{bar.get_height()}%', 
+                 ha='center', va='bottom', color="#1a1a2e", fontweight='bold', fontsize=12)
+    ax3.set_ylabel('Percentage (%)', fontsize=12)
+    
+    # CHART 4: HEATMAP (High Contrast)
+    ax4 = fig.add_subplot(gs[2, :])
+    
+    # Prepare Data
+    heatmap_data = np.zeros((3, 4))
+    for col_idx, key in enumerate(combined_keys):
+        values = combined_data_raw[key]
+        for row_idx, val in enumerate(values):
+            heatmap_data[row_idx, col_idx] = (val / float(total_functions)) * 100.0
+    
+    # PLOT: Using 'RdYlGn' (Red-Yellow-Green) for maximum contrast
+    im = ax4.imshow(heatmap_data, cmap='RdYlGn', aspect='auto', vmin=75, vmax=95)
+    
+    # Annotations with Dynamic Text Color
+    for i in range(3): 
+        for j in range(4): 
+            pct = heatmap_data[i, j]
+            count = int((pct/100) * total_functions)
+            label = f"{pct:.1f}%\n({count}/{total_functions})"
+            ax4.text(j, i, label, ha="center", va="center", color='black', fontweight='bold', fontsize=14)
+    
+    ax4.set_xticks(np.arange(len(combined_keys)))
+    ax4.set_yticks(np.arange(len(strategy_labels)))
+    ax4.set_xticklabels(combined_keys, fontsize=13, weight='bold', color='black')
+    ax4.set_yticklabels(strategy_labels, fontsize=13, weight='bold', color='black')
+    ax4.set_title('COMBINED METRICS HEATMAP (% of Functions Meeting Criteria)', fontsize=18, color='#006666', pad=15)
+    
+    for edge, spine in ax4.spines.items():
+        spine.set_visible(False)
+    
+    ax4.set_xticks(np.arange(len(combined_keys)+1)-.5, minor=True)
+    ax4.set_yticks(np.arange(len(strategy_labels)+1)-.5, minor=True)
+    ax4.grid(which="minor", color="black", linestyle='-', linewidth=2)
+    ax4.tick_params(which="minor", bottom=False, left=False)
+    
+    # CHART 5: Overall Score
+    ax5 = fig.add_subplot(gs[3, 0])
+    bars = ax5.bar(strategy_labels, overall_scores, color=strategy_colors_dark, width=0.5, edgecolor='black')
+    ax5.set_ylim(90, 96)
+    ax5.set_title('OVERALL WEIGHTED SCORE\n(40% Corr, 40% Comp, 20% Sound)', fontsize=16, color='#006666', pad=10)
+    for bar in bars:
+        ax5.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.1, str(round(bar.get_height(), 2)), 
+                 ha='center', fontweight='bold', fontsize=12, color='#1a1a2e')
+    ax5.set_ylabel('Percentage (%)', fontsize=12)
+    
+    # CHART 6: Improvements
+    ax6 = fig.add_subplot(gs[3, 1])
+    y_pos = np.arange(len(improvements.keys()))
+    fs_vals = [improvements[k][1] for k in improvements]
+    cot_vals = [improvements[k][2] for k in improvements]
+    
+    ax6.barh(y_pos + 0.2, fs_vals, height=0.4, label='Few Shot Delta', color='#008080', edgecolor='black')
+    ax6.barh(y_pos - 0.2, cot_vals, height=0.4, label='CoT Delta', color='#CC9900', edgecolor='black')
+    ax6.set_yticks(y_pos)
+    ax6.set_yticklabels(improvements.keys(), fontsize=12, color='black')
+    ax6.axvline(0, color='black', linewidth=1)
+    ax6.legend(loc='lower right', framealpha=0.9, facecolor='white', edgecolor='gray')
+    ax6.set_title('IMPROVEMENT VS BASELINE', fontsize=16, color='#006666', pad=10)
+    ax6.set_xlabel('Percentage (%)', fontsize=12)
+    
+    # CHART 7: Summary Table
+    ax7 = fig.add_subplot(gs[4, :])
+    ax7.axis('off')
+    table_data = [[k, v] for k, v in summary_counts]
+    
+    table = ax7.table(cellText=table_data, colLabels=["Metric Category", "Count"], 
+                      loc='center', cellLoc='center', colColours=['#006666', '#006666'])
+    table.auto_set_font_size(False)
+    table.set_fontsize(13)
+    table.scale(1, 1.8)
+    
+    for (row, col), cell in table.get_celld().items():
+        if row == 0:
+            cell.set_text_props(weight='bold', color='white', fontsize=14)
+        else:
+            cell.set_text_props(color='black')
+        cell.set_edgecolor('#999')
+        if row > 0: 
+            cell.set_facecolor('#f5f5f5')
+    
+    ax7.set_title("SUCCESS STORIES & CHALLENGES SUMMARY", fontsize=16, color='#006666', pad=35)
+    
+    plt.subplots_adjust(top=0.92, bottom=0.02, left=0.05, right=0.95, hspace=0.45, wspace=0.25)
+    plt.savefig(DASHBOARD_FILE, dpi=300, bbox_inches='tight', facecolor='white', edgecolor='none')
     plt.close()
-    print("✓ Comprehensive dashboard saved")
+    print(f"✓ Comprehensive dashboard saved to: {DASHBOARD_FILE}")
 
 
 # Quick Summary Function
@@ -1237,14 +875,12 @@ def print_quick_summary(data):
         print(f"   {name}: CV={cv:.2f}%, Reliability={rel:.4f}")
 
     print("\n" + "=" * 80)
-    print(" 📈 Detailed analysis has been written to: src/reports/analysis_summary.txt")
-    print(" 📊 Visualizations have been saved to:   src/reports/visualizations/")
+    print(f" 📈 Detailed analysis has been written to: {SUMMARY_FILE}")
+    print(f" 📊 Dashboard has been saved to: {DASHBOARD_FILE}")
     print("=" * 80 + "\n")
 
 
-# ---------------------------------------------------------------------------
 # Main Orchestration
-# ---------------------------------------------------------------------------
 
 def main():
     print("=" * 80)
@@ -1287,7 +923,6 @@ def main():
     print("✓ All metrics calculated")
     print()
 
-    # Combine metrics into a single in-memory structure
     all_metrics = {
         'correctness_metrics': correctness_metrics,
         'completeness_metrics': completeness_metrics,
@@ -1299,7 +934,7 @@ def main():
         'consistency_metrics': consistency_metrics
     }
 
-    # Generate and save summary report (only text, no JSON)
+    # Generate and save summary report
     print(f"Generating summary report to {SUMMARY_FILE}...")
     summary = generate_summary_report(all_metrics)
     Path(Path(SUMMARY_FILE).parent).mkdir(parents=True, exist_ok=True)
@@ -1308,24 +943,14 @@ def main():
     print("✓ Summary report saved")
     print()
 
-    # Visualizations
-    print("Generating visualizations...")
-    set_style()
-    plot_correctness_comparison(all_metrics)
-    plot_completeness_comparison(all_metrics)
-    plot_soundness_comparison(all_metrics)
-    plot_mutation_score_distribution(all_metrics)
-    plot_combined_metrics_heatmap(all_metrics)
-    plot_overall_strategy_comparison(all_metrics)
-    plot_success_and_challenge_analysis(all_metrics)
-    plot_improvements_over_baseline(all_metrics)
-    plot_consistency_analysis(all_metrics)
-    plot_overall_scores_ranking(all_metrics)
-    create_summary_dashboard(all_metrics)
+    # Generate comprehensive dashboard
+    print("Generating comprehensive dashboard...")
+    create_comprehensive_dashboard(all_metrics)
 
     print()
     print("=" * 80)
-    print(f"✓ All visualizations saved to: {OUTPUT_DIR}/")
+    print(f"✓ Summary report saved to: {SUMMARY_FILE}")
+    print(f"✓ Dashboard saved to: {DASHBOARD_FILE}")
     print("=" * 80)
     print()
 
